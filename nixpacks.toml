@@ -1,0 +1,5 @@
+[phases.build]
+cmds = ["npm install --legacy-peer-deps --no-audit", "npm run build"]
+
+[start]
+cmd = "node server.js"

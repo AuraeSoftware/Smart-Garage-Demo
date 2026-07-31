@@ -1,0 +1,87 @@
+# Python Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+virtualenv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / Packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+database.db
+washpro.db
+rwash.db
+
+# Logs
+*.log
+error.log
+traceback.txt
+
+# Deployment
+lambda_pkg/
+deploy_package.zip
+*.zip
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project specific
+fix.txt
+fix_*.py
+insert_dummy.py
+test_*.py
+migrate_*.py
+migrate.py
+
+# docker files
+Dockerfile
+docker-compose.yml
+
+
