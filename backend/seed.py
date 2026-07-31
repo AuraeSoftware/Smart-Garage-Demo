@@ -62,7 +62,6 @@ DEFAULT_LOYALTY = {
 }
 
 DEFAULT_SETTINGS = [
-    ("loyalty",     "{}"),
     ("loyalty",     json.dumps(DEFAULT_LOYALTY)),
     ("inv_counter", "0"),
     ("cus_counter", "0"),
