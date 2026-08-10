@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeToggle, PhoneInp } from '../components/common/UI';
 import { API, token } from '../utils/api';
-import { getCurrency } from '../utils/messaging';
+import { getCurrency, getConvertedPrice, syncCurrencyRates } from '../utils/messaging';
 import LogoLightFull from '../assets/smart-garage-light/Smart-Garage-vertical.png';
 import LogoDarkFull from '../assets/smart-garage-dark/smart-garage-dark-theme-v.png';
 import carIcon from '../assets/icons/car-icon.png';
@@ -24,15 +24,17 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
     const [plans, setPlans] = useState(DEFAULT_PLANS);
 
     useEffect(() => {
-        API.subscriptions.list().then(data => {
-            if (data && data.length > 0) {
-                setPlans(data.map(p => ({
-                    ...p,
-                    desc: `${p.duration === '/month' ? '/month' : p.duration} · ${p.max_washers > 0 ? p.max_washers : 'Unlimited'} washers · ${p.max_sessions > 0 ? p.max_sessions : 'Unlimited'} sessions`,
-                    requiresPayment: !['rm 0', '0', 'free', 'trial', 'rm0'].includes((p.price || '').toLowerCase().replace(/\s/g, ''))
-                })));
-            }
-        }).catch(() => { });
+        syncCurrencyRates().finally(() => {
+            API.subscriptions.list().then(data => {
+                if (data && data.length > 0) {
+                    setPlans(data.map(p => ({
+                        ...p,
+                        desc: `${p.duration === '/month' ? '/month' : p.duration} · ${p.max_washers > 0 ? p.max_washers : 'Unlimited'} washers · ${p.max_sessions > 0 ? p.max_sessions : 'Unlimited'} sessions`,
+                        requiresPayment: !['rm 0', '0', 'free', 'trial', 'rm0'].includes((p.price || '').toLowerCase().replace(/\s/g, ''))
+                    })));
+                }
+            }).catch(() => { });
+        });
     }, []);
 
     const [error, setError] = useState('');
@@ -337,7 +339,8 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
     const generateDynamicQr = async () => {
         setQrLoading(true); setError(''); setDynamicQrUrl('');
         try {
-            const currencyCode = br.country === 'India' ? 'INR' : 'MYR';
+            const curr = getCurrency(br.phone);
+            const currencyCode = curr === 'RM' ? 'MYR' : curr === '$' ? 'USD' : curr === 'Rp' ? 'IDR' : curr;
             const selectedPlan = plans.find(p => p.id === br.subscription);
             const displayPriceStr = getDisplayPrice(selectedPlan) || '0';
             const amount = parseFloat(String(displayPriceStr).replace(/[^0-9.]/g, ''));
@@ -364,7 +367,8 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
             }
 
             const { key_id } = await API.payment.getRazorpayKey(true);
-            const currencyCode = br.country === 'India' ? 'INR' : 'MYR';
+            const curr = getCurrency(br.phone);
+            const currencyCode = curr === 'RM' ? 'MYR' : curr === '$' ? 'USD' : curr === 'Rp' ? 'IDR' : curr;
             const selectedPlan = plans.find(p => p.id === br.subscription);
             const displayPriceStr = getDisplayPrice(selectedPlan) || '0';
             const amount = parseFloat(String(displayPriceStr).replace(/[^0-9.]/g, ''));
@@ -386,11 +390,14 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
                             razorpay_signature: response.razorpay_signature,
                             for_subscription: true
                         });
+                        const displayPriceStr = getDisplayPrice(selectedPlan) || '0';
+                        const amount = parseFloat(String(displayPriceStr).replace(/[^0-9.]/g, ''));
                         const successPayment = {
                             transactionId: response.razorpay_payment_id,
                             accountName: br.name,
                             paymentDate: new Date().toISOString(),
-                            currency: currencyCode
+                            currency: currencyCode,
+                            amount: amount
                         };
                         setPay(successPayment);
                         handleBranchSignup(successPayment);
@@ -505,28 +512,39 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
 
     const getDisplayPrice = (plan) => {
         if (!plan) return '0';
-        if (br.country === 'India') {
-            if (billingCycle === 'annually' && plan.annual_price_inr > 0) return `INR ${plan.annual_price_inr}`;
-            return plan.price_inr || plan.price;
+        
+        const curr = getCurrency(br.phone);
+        if (curr === 'RM') {
+            if (billingCycle === 'annually' && plan.annual_price > 0) {
+                const prefixMatch = (plan.price || '').match(/^([a-zA-Z\s]+)/);
+                const prefix = prefixMatch ? prefixMatch[1] : 'RM ';
+                return `${prefix}${plan.annual_price}`;
+            }
+            return plan.price;
         }
+
         if (billingCycle === 'annually' && plan.annual_price > 0) {
-            const prefixMatch = (plan.price || '').match(/^([a-zA-Z\s]+)/);
-            const prefix = prefixMatch ? prefixMatch[1] : 'RM ';
-            return `${prefix}${plan.annual_price}`;
+            return `${curr} ${getConvertedPrice(plan.annual_price, curr, plan.id, 'annual_price')}`;
         }
-        return plan.price;
+        return `${curr} ${getConvertedPrice(plan.price, curr, plan.id, 'price')}`;
     };
 
     const getStrikethroughPrice = (plan) => {
         if (!plan || billingCycle !== 'annually' || plan.annual_price <= 0) return null;
-        if (br.country === 'India') {
-            if (plan.monthly_price_inr > 0) return `INR ${plan.monthly_price_inr * 12}`;
+        
+        const curr = getCurrency(br.phone);
+        if (curr === 'RM') {
+            if (plan.monthly_price > 0) {
+                const prefixMatch = (plan.price || '').match(/^([a-zA-Z\s]+)/);
+                const prefix = prefixMatch ? prefixMatch[1] : 'RM ';
+                return `${prefix}${plan.monthly_price * 12}`;
+            }
             return null;
         }
+
         if (plan.monthly_price > 0) {
-            const prefixMatch = (plan.price || '').match(/^([a-zA-Z\s]+)/);
-            const prefix = prefixMatch ? prefixMatch[1] : 'RM ';
-            return `${prefix}${plan.monthly_price * 12}`;
+            const monthlyOverride = getConvertedPrice(plan.monthly_price, curr, plan.id, 'monthly_price');
+            return `${curr} ${monthlyOverride * 12}`;
         }
         return null;
     };
