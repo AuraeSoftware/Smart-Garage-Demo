@@ -59,14 +59,19 @@ export const SubscriptionHistoryPage = ({ currentUser, branches, users }) => {
     return result;
   }, [history, filterPeriod, searchQuery]);
 
-  const myrHistory = filteredHistory.filter(tx => !tx.currency || tx.currency === 'MYR');
-  const inrHistory = filteredHistory.filter(tx => tx.currency === 'INR');
+  const currencyStats = useMemo(() => {
+    const stats = {};
+    filteredHistory.forEach(tx => {
+      const c = tx.currency || 'MYR';
+      if (!stats[c]) {
+        stats[c] = { revenue: 0, count: 0 };
+      }
+      stats[c].revenue += (tx.amount || 0);
+      stats[c].count += 1;
+    });
+    return Object.entries(stats).sort((a, b) => b[1].revenue - a[1].revenue); // Sort by revenue descending
+  }, [filteredHistory]);
 
-  const totalRevenueMYR = myrHistory.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-  const totalRevenueINR = inrHistory.reduce((sum, tx) => sum + (tx.amount || 0), 0);
-
-  const totalSubscriptionsMYR = myrHistory.length;
-  const totalSubscriptionsINR = inrHistory.length;
   const totalSubscriptions = filteredHistory.length;
 
   // Calculate expired users (SuperAdmins)
@@ -143,19 +148,20 @@ export const SubscriptionHistoryPage = ({ currentUser, branches, users }) => {
       </div>
 
       {/* Stats */}
-      <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 24, marginBottom: 24 }}>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Total Revenue (MYR)</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text)' }}>MYR {totalRevenueMYR.toFixed(2)}</div>
-        </Card>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Total Revenue (INR)</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text)' }}>INR {totalRevenueINR.toFixed(2)}</div>
-        </Card>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Subscriptions (MYR / INR)</div>
-          <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text)' }}>{totalSubscriptionsMYR} / {totalSubscriptionsINR}</div>
-        </Card>
+      <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginTop: 24, marginBottom: 24 }}>
+        {currencyStats.map(([currency, stat]) => (
+          <Card key={currency} style={{ padding: 20 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Total Revenue ({currency})</div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text)' }}>{currency} {stat.revenue.toFixed(2)}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 8 }}>{stat.count} subscriptions</div>
+          </Card>
+        ))}
+        {currencyStats.length === 0 && (
+          <Card style={{ padding: 20 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Total Revenue</div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text)' }}>-</div>
+          </Card>
+        )}
         <Card style={{ padding: 20 }}>
           <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Expired Users</div>
           <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--red)' }}>{expiredUsersCount}</div>
