@@ -2,6 +2,7 @@
 // WashPro — Messaging & OTP utilities
 // WhatsApp message layout mirrors the PDF receipt structure
 // ================================================================
+import { API } from './api';
 
 // ── WhatsApp Invoice Message ─────────────────────────────────────
 // Structure mirrors the PDF: meta → customer → vehicle → service → payment → total
@@ -111,7 +112,6 @@ export const getCurrency = (phone) => {
 };
 
 // ── Currency Conversion ───────────────────────────────────────────
-import { API } from './api';
 
 export let EXCHANGE_RATES = {
   'RM': 1, 'INR': 18.5, 'SGD': 0.28, 'Rp': 3450, '$': 0.21,
