@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { API, token, BASE_URL } from '../utils/api';
+import { syncCurrencyRates } from '../utils/messaging';
 
 const safeParseJSON = (data) => {
   if (typeof data === 'string') {
@@ -91,6 +92,7 @@ export const useAppData = () => {
         isWasher || isAdmin ? safe(API.inventory.list(), []) : none,
         isSuper ? safe(API.subscriptions.list(), []) : none,
         isAdmin || isWasher ? safe(API.settings.getBankDetails(), null) : none,
+        safe(syncCurrencyRates(), null),
       ]);
 
       setUsers((u || []));
