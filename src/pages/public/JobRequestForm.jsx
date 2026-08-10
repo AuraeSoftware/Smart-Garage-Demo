@@ -67,8 +67,8 @@ export const JobRequestForm = ({ branchId, isDark }) => {
         <div className="public-form-container" style={{ background: 'var(--card)', padding: '40px 32px', borderRadius: 24, boxShadow: 'var(--shadow)', border: '1px solid var(--border)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <img src={LogoBrand} alt="Smart Garage" style={{ height: 80, display: 'block', margin: '0 auto' }} />
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: '16px 0 8px', color: 'var(--text)' }}>Request a Wash</h2>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)' }}>Fill in your details and we'll assign a washer right away.</p>
+          <h2 style={{ fontSize: 20, fontWeight: 800, margin: '16px 0 8px', color: 'var(--text)' }}>Request a Job</h2>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)' }}>Fill in your details and we'll assign a worker right away.</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -117,7 +117,7 @@ export const JobRequestForm = ({ branchId, isDark }) => {
 
           {packages.length > 0 && (
             <Dropdown
-              label="Select Wash Package (Optional)"
+              label="Select Job Package (Optional)"
               value={packageId}
               onChange={setPackageId}
               options={[
