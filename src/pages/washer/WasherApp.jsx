@@ -1087,7 +1087,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
                 <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 8, background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 12, padding: 12, minWidth: 200, zIndex: 100, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
                   <div style={{ padding: '0 8px 12px', borderBottom: '1px solid var(--border)', marginBottom: 8 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>{user.name}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Washer</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Worker</div>
                   </div>
 
                   <button onClick={onLogout} style={{ width: '100%', background: 'rgba(218,26,49,0.07)', border: 'none', borderRadius: 8, padding: '10px 8px', fontSize: 13, fontWeight: 600, color: 'var(--red)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1261,7 +1261,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
                   boxShadow: isBlocked ? 'none' : '0 4px 14px var(--accent-dim)',
                 }}>
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 2 }}>Start New Wash</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 2 }}>Start New Job</div>
                   <div style={{ fontSize: 12, opacity: 0.8 }}>Intake → Job → Payment</div>
                 </div>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
