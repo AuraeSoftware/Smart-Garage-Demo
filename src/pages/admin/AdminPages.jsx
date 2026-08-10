@@ -1,8 +1,5 @@
-// ═══════════════════════════════════════════════════════════
-// WASHERS PAGE
-// ═══════════════════════════════════════════════════════════
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { getCurrency } from '../../utils/messaging';
+import { getCurrency, CC_TO_CURRENCY, EXCHANGE_RATES, syncCurrencyRates, PLAN_OVERRIDES, getConvertedPrice } from '../../utils/messaging';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Card, StatCard, Chip, Btn, Inp, PhoneInp, Sel, Dropdown, Modal, EmptyState, BackButton } from '../../components/common/UI';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -1631,6 +1628,187 @@ export const LoyaltySettings = ({ currentUser, customers, sessions, loyalty, upd
 };
 
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// CURRENCY CONFIG PAGE
+// ═══════════════════════════════════════════════════════════
+export const CurrencyConfigPage = ({ notify, plans }) => {
+  const [rates, setRates] = useState({});
+  const [overrides, setOverrides] = useState({});
+  const [search, setSearch] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [expandedCountry, setExpandedCountry] = useState(null);
+
+  useEffect(() => {
+    setRates({ ...EXCHANGE_RATES });
+    setOverrides(JSON.parse(JSON.stringify(PLAN_OVERRIDES)));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await API.settings.setCurrencyRates({ rates, overrides });
+      await syncCurrencyRates();
+      notify('Currency rates updated successfully');
+    } catch (err) {
+      notify(err.message || 'Failed to update rates', 'error');
+    }
+    setSaving(false);
+  };
+
+  const handleOverrideChange = (curr, planId, type, val) => {
+    setOverrides(prev => ({
+      ...prev,
+      [curr]: {
+        ...(prev[curr] || {}),
+        [planId]: {
+          ...(prev[curr]?.[planId] || {}),
+          [type]: val
+        }
+      }
+    }));
+  };
+
+  const filteredCountries = Object.entries(CC_TO_CURRENCY).filter(([cc, curr]) => {
+    const term = search.toLowerCase();
+    return cc.includes(term) || curr.toLowerCase().includes(term);
+  });
+
+  return (
+    <div style={{ padding: '0 20px 40px', maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text)', margin: '0 0 4px 0' }}>Currency Configuration</h2>
+          <p style={{ color: 'var(--text-3)', margin: 0, fontSize: 14 }}>Manage exchange rates and manual plan price overrides per country.</p>
+        </div>
+        <Btn onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save Configuration'}</Btn>
+      </div>
+
+      <Card style={{ padding: 24 }}>
+        <div style={{ marginBottom: 20 }}>
+          <Inp 
+            placeholder="Search country code (e.g. 358) or currency (e.g. EUR)..." 
+            value={search} 
+            onChange={e => setSearch(e.target.value)} 
+            icon={<img src={SearchIcon} alt="search" style={{width: 14}}/>}
+          />
+        </div>
+
+        <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid var(--border)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: 600 }}>
+            <thead>
+              <tr style={{ background: 'var(--bg-3)', borderBottom: '2px solid var(--border)' }}>
+                <th style={{ padding: '12px 16px', color: 'var(--text-2)', fontWeight: 600, fontSize: 13, width: '25%' }}>Country / Currency</th>
+                <th style={{ padding: '12px 16px', color: 'var(--text-2)', fontWeight: 600, fontSize: 13, width: '30%' }}>Exchange Rate (vs RM)</th>
+                <th style={{ padding: '12px 16px', color: 'var(--text-2)', fontWeight: 600, fontSize: 13 }}>Plan Overrides</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCountries.length === 0 ? (
+                <tr>
+                  <td colSpan={3} style={{ padding: 30, textAlign: 'center', color: 'var(--text-3)' }}>No matches found</td>
+                </tr>
+              ) : (
+                filteredCountries.map(([cc, curr]) => (
+                  <React.Fragment key={cc}>
+                    <tr 
+                      style={{ borderBottom: '1px solid var(--border)', background: 'var(--card)', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onClick={() => setExpandedCountry(expandedCountry === cc ? null : cc)}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--card-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--card)'}
+                    >
+                      <td style={{ padding: '14px 16px', fontWeight: 600, color: 'var(--text)' }}>
+                        +{cc} <span style={{ color: 'var(--text-3)', marginLeft: 6, fontWeight: 500 }}>{curr}</span>
+                      </td>
+                      <td style={{ padding: '14px 16px' }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 13, color: 'var(--text-2)', whiteSpace: 'nowrap' }}>1 RM = </span>
+                          <input 
+                            type="number" 
+                            step="0.01"
+                            value={rates[curr] !== undefined ? rates[curr] : (EXCHANGE_RATES[curr] || 1)}
+                            onChange={e => setRates({ ...rates, [curr]: Number(e.target.value) })}
+                            style={{ 
+                              width: 100, padding: '8px 12px', borderRadius: 6, 
+                              border: '1px solid var(--border)', background: 'var(--bg)', 
+                              color: 'var(--text)', outline: 'none', fontSize: 14 
+                            }}
+                          />
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 16px', color: 'var(--text-3)', fontSize: 13 }}>
+                        {expandedCountry === cc ? 'Hide Overrides ▲' : 'Configure Overrides ▼'}
+                      </td>
+                    </tr>
+                    {expandedCountry === cc && (
+                      <tr>
+                        <td colSpan={3} style={{ padding: 0, borderBottom: '1px solid var(--border)', background: 'var(--bg-3)' }}>
+                          <div style={{ padding: '20px 24px' }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              Plan Price Overrides for {curr}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                              {(plans || []).filter(p => p.id !== 'trial').map(plan => {
+                                const baseOvr = overrides[curr]?.[plan.id]?.price ?? '';
+                                const moOvr = overrides[curr]?.[plan.id]?.monthly_price ?? '';
+                                const yrOvr = overrides[curr]?.[plan.id]?.annual_price ?? '';
+
+                                return (
+                                  <div key={plan.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'var(--card)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', flex: 1 }}>{plan.label}</div>
+                                    <div style={{ display: 'flex', gap: 12 }}>
+                                      <div>
+                                        <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 4 }}>Base (Conv: {getConvertedPrice(plan.price, curr)})</div>
+                                        <input 
+                                          type="number" 
+                                          placeholder="Override..."
+                                          value={baseOvr}
+                                          onChange={e => handleOverrideChange(curr, plan.id, 'price', e.target.value)}
+                                          style={{ width: 110, padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, outline: 'none' }}
+                                        />
+                                      </div>
+                                      <div style={{ opacity: plan.monthly_price ? 1 : 0.4 }}>
+                                        <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 4 }}>Mo (Conv: {plan.monthly_price ? getConvertedPrice(plan.monthly_price, curr) : 'N/A'})</div>
+                                        <input 
+                                          type="number" 
+                                          placeholder="Override..."
+                                          value={moOvr}
+                                          disabled={!plan.monthly_price}
+                                          onChange={e => handleOverrideChange(curr, plan.id, 'monthly_price', e.target.value)}
+                                          style={{ width: 110, padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, outline: 'none' }}
+                                        />
+                                      </div>
+                                      <div style={{ opacity: plan.annual_price ? 1 : 0.4 }}>
+                                        <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 4 }}>Yr (Conv: {plan.annual_price ? getConvertedPrice(plan.annual_price, curr) : 'N/A'})</div>
+                                        <input 
+                                          type="number" 
+                                          placeholder="Override..."
+                                          value={yrOvr}
+                                          disabled={!plan.annual_price}
+                                          onChange={e => handleOverrideChange(curr, plan.id, 'annual_price', e.target.value)}
+                                          style={{ width: 110, padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 13, outline: 'none' }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════
 // SUBSCRIPTION PLANS PAGE (SUPREME ADMIN ONLY)
 // ═══════════════════════════════════════════════════════════
 export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, deletePlan, notify, onNav }) => {
@@ -1638,11 +1816,10 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
 
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [viewCountry, setViewCountry] = useState('Malaysia');
-  const [newPlan, setNewPlan] = useState({ label: '', price: '', price_inr: '', monthly_price: '', monthly_price_inr: '', annual_price: '', annual_price_inr: '', duration: '', color: '#6366f1', max_washers: 0, max_sessions: 0, max_branches: 0, has_loyalty: false, has_qr: false, has_reports: false, report_access: 'All', has_ai_scanning: false, has_multiple_branches: false });
+  const [newPlan, setNewPlan] = useState({ label: '', price: '', monthly_price: '', annual_price: '', duration: '', color: '#6366f1', max_washers: 0, max_sessions: 0, max_branches: 0, has_loyalty: false, has_qr: false, has_reports: false, report_access: 'All', has_ai_scanning: false, has_multiple_branches: false });
 
   const handleAddOpen = () => {
-    setNewPlan({ label: '', price: '', price_inr: '', monthly_price: '', monthly_price_inr: '', annual_price: '', annual_price_inr: '', duration: '', color: '#6366f1', max_washers: 0, max_sessions: 0, max_branches: 0, has_loyalty: false, has_qr: false, has_reports: false, report_access: 'All', has_ai_scanning: false, has_multiple_branches: false, has_payment_gateway: false });
+    setNewPlan({ label: '', price: '', monthly_price: '', annual_price: '', duration: '', color: '#6366f1', max_washers: 0, max_sessions: 0, max_branches: 0, has_loyalty: false, has_qr: false, has_reports: false, report_access: 'All', has_ai_scanning: false, has_multiple_branches: false, has_payment_gateway: false });
     setShowAdd(true);
   };
 
@@ -1654,7 +1831,7 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
     if (!newPlan.label || !newPlan.price || !newPlan.duration) { notify('Label, price, and duration are required', 'error'); return; }
     try {
       await createPlan({
-        label: newPlan.label, price: newPlan.price, price_inr: newPlan.price_inr, monthly_price: Number(newPlan.monthly_price) || 0, monthly_price_inr: Number(newPlan.monthly_price_inr) || 0, annual_price: Number(newPlan.annual_price) || 0, annual_price_inr: Number(newPlan.annual_price_inr) || 0, duration: newPlan.duration,
+        label: newPlan.label, price: newPlan.price, monthly_price: Number(newPlan.monthly_price) || 0, annual_price: Number(newPlan.annual_price) || 0, duration: newPlan.duration,
         color: newPlan.color,
         max_washers: Number(newPlan.max_washers) || 0, max_sessions: Number(newPlan.max_sessions) || 0, max_branches: Number(newPlan.max_branches) || 0,
         has_loyalty: newPlan.has_loyalty, has_qr: newPlan.has_qr, has_reports: newPlan.has_reports, report_access: newPlan.report_access,
@@ -1668,7 +1845,7 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
   const handleUpdate = async () => {
     try {
       await updatePlan(editing.id, {
-        label: editing.label, price: editing.price, price_inr: editing.price_inr, monthly_price: Number(editing.monthly_price) || 0, monthly_price_inr: Number(editing.monthly_price_inr) || 0, annual_price: Number(editing.annual_price) || 0, annual_price_inr: Number(editing.annual_price_inr) || 0, duration: editing.duration,
+        label: editing.label, price: editing.price, monthly_price: Number(editing.monthly_price) || 0, annual_price: Number(editing.annual_price) || 0, duration: editing.duration,
         color: editing.color,
         max_washers: Number(editing.max_washers) || 0, max_sessions: Number(editing.max_sessions) || 0, max_branches: Number(editing.max_branches) || 0,
         has_loyalty: editing.has_loyalty, has_qr: editing.has_qr, has_reports: editing.has_reports, report_access: editing.report_access,
@@ -1693,14 +1870,13 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
     const setState = isEdit ? setEditing : setNewPlan;
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 10 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
           <Inp label="Plan Name" value={state.label} onChange={e => setState({ ...state, label: e.target.value })} placeholder="e.g. Pro Plan" />
-          <Inp label="Display Price (MYR)" value={state.price} onChange={e => setState({ ...state, price: e.target.value })} placeholder="e.g. RM 99" />
-          <Inp label="Display Price (INR)" value={state.price_inr} onChange={e => setState({ ...state, price_inr: e.target.value })} placeholder="e.g. INR 1499" />
+          <Inp label="Display Price (RM)" value={state.price} onChange={e => setState({ ...state, price: e.target.value })} placeholder="e.g. RM 99" />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
           <div style={{ display: 'flex', gap: 6 }}>
-            <Inp label="MYR/mo" type="number" value={state.monthly_price} onChange={e => {
+            <Inp label="RM/mo" type="number" value={state.monthly_price} onChange={e => {
               const val = e.target.value;
               let newDur = state.duration;
               let newAccess = state.report_access;
@@ -1708,10 +1884,9 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
               else if (Number(state.annual_price) > 0) { newDur = '/year'; newAccess = 'Annually'; }
               setState({ ...state, monthly_price: val, duration: newDur, report_access: newAccess });
             }} />
-            <Inp label="INR/mo" type="number" value={state.monthly_price_inr} onChange={e => setState({ ...state, monthly_price_inr: e.target.value })} />
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <Inp label="MYR/yr" type="number" value={state.annual_price} onChange={e => {
+            <Inp label="RM/yr" type="number" value={state.annual_price} onChange={e => {
               const val = e.target.value;
               let newDur = state.duration;
               let newAccess = state.report_access;
@@ -1719,7 +1894,6 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
               else if (Number(state.monthly_price) > 0) { newDur = '/month'; newAccess = 'Monthly'; }
               setState({ ...state, annual_price: val, duration: newDur, report_access: newAccess });
             }} />
-            <Inp label="INR/yr" type="number" value={state.annual_price_inr} onChange={e => setState({ ...state, annual_price_inr: e.target.value })} />
           </div>
           <div>
             <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--text-3)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Duration Type</label>
@@ -1818,6 +1992,8 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
     );
   };
 
+
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -1828,10 +2004,6 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <div style={{ display: 'flex', background: 'var(--bg-3)', borderRadius: 10, padding: 4 }}>
-            <button onClick={() => setViewCountry('Malaysia')} style={{ padding: '6px 14px', border: 'none', background: viewCountry === 'Malaysia' ? 'var(--card)' : 'transparent', color: viewCountry === 'Malaysia' ? 'var(--text)' : 'var(--text-3)', fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: 'pointer', transition: 'all 0.2s', boxShadow: viewCountry === 'Malaysia' ? 'var(--shadow)' : 'none' }}>Malaysia</button>
-            <button onClick={() => setViewCountry('India')} style={{ padding: '6px 14px', border: 'none', background: viewCountry === 'India' ? 'var(--card)' : 'transparent', color: viewCountry === 'India' ? 'var(--text)' : 'var(--text-3)', fontWeight: 600, fontSize: 13, borderRadius: 8, cursor: 'pointer', transition: 'all 0.2s', boxShadow: viewCountry === 'India' ? 'var(--shadow)' : 'none' }}>India</button>
-          </div>
           <Btn onClick={handleAddOpen}>+ Add Plan</Btn>
         </div>
       </div>
@@ -1842,10 +2014,10 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 16 }}>
           {plans.map(p => {
             const feats = Array.isArray(p.features) ? p.features : [];
-            const displayPrice = viewCountry === 'India' ? (p.price_inr || 'N/A') : (p.price || 'N/A');
-            const displayMonthly = viewCountry === 'India' ? (p.monthly_price_inr || 0) : (p.monthly_price || 0);
-            const displayAnnual = viewCountry === 'India' ? (p.annual_price_inr || 0) : (p.annual_price || 0);
-            const currPrefix = viewCountry === 'India' ? 'INR ' : 'RM ';
+            const displayPrice = p.price || 'N/A';
+            const displayMonthly = p.monthly_price || 0;
+            const displayAnnual = p.annual_price || 0;
+            const currPrefix = 'RM ';
             return (
               <Card key={p.id} style={{ borderTop: `4px solid ${p.color}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -1909,6 +2081,8 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
           <Btn variant="ghost" onClick={() => setEditing(null)}>Cancel</Btn>
         </div>
       </Modal>
+
+
     </>
   );
 };
