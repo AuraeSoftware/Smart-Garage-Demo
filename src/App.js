@@ -91,13 +91,13 @@ export default function App() {
       const msg = payload?.message || '';
       switch (type) {
         case 'session.created':
-          if (isAdmin) notify('' + (msg || 'New wash session completed'), 'success');
+          if (isAdmin) notify('' + (msg || 'New job session completed'), 'success');
           break;
         case 'job.assigned':
           if (isAdmin || isWasher) notify(' ' + (msg || 'New job assigned'), 'info');
           break;
         case 'job.completed':
-          if (isAdmin || isWasher) notify(' ' + (msg || 'Wash job completed!'), 'success');
+          if (isAdmin || isWasher) notify(' ' + (msg || 'Job completed!'), 'success');
           break;
         case 'job.updated':
           // Subtle — don't notify for every update
@@ -353,7 +353,7 @@ export default function App() {
         />
 
       ) : (
-        // ── Washer App ────────────────────────────────────────
+        // ── Worker App ────────────────────────────────────────
         <WasherApp
           user={currentUser}
           packages={data.packages}
