@@ -349,7 +349,7 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, marginBottom: 8 }}>Max Washers</div>
+            <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, marginBottom: 8 }}>Max Workers</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
               {branchSubscription.max_washers === 0 ? 'Unlimited' : branchSubscription.max_washers}
             </div>
@@ -450,7 +450,7 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
                       <div style={{ fontWeight: 800, fontSize: 15, color: selectedPlanId === plan.id ? (plan.color || 'var(--accent)') : 'var(--text)' }}>
                         {plan.label} {branchSubscription?.id === plan.id && <Chip size="sm" style={{ marginLeft: 8 }}>Current</Chip>}
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4 }}>Washers: {plan.max_washers === 0 ? 'Unlimited' : plan.max_washers} · Sessions: {plan.max_sessions === 0 ? 'Unlimited' : plan.max_sessions} · Branches: {plan.max_branches === 0 ? 'Unlimited' : (plan.max_branches || 'Unlimited')}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4 }}>Workers: {plan.max_washers === 0 ? 'Unlimited' : plan.max_washers} · Sessions: {plan.max_sessions === 0 ? 'Unlimited' : plan.max_sessions} · Branches: {plan.max_branches === 0 ? 'Unlimited' : (plan.max_branches || 'Unlimited')}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       {billingCycle === 'annual' && plan.annual_price > 0 && plan.monthly_price > 0 && (
