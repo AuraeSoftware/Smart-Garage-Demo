@@ -30,6 +30,7 @@ const NAV = [
   { id: 'branches', label: 'Branches', super: false, path: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2zM9 22V12h6v10' },
   { id: 'super_admins', label: 'Super Admins', super: true, path: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zM12 11a2 2 0 100-4 2 2 0 000 4zm-3 5c0-2 2-3 3-3s3 1 3 3' },
   { id: 'subscriptions', label: 'Subscription Plans', super: true, path: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
+  { id: 'currency_config', label: 'Currency Config', super: true, path: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4m0 4h.01' },
   { id: 'sub_history', label: 'Subscription History', super: true, path: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
   { id: 'credentials', label: 'Credentials', super: false, path: 'M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4' },
   { id: 'map', label: 'Live Map', super: false, path: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0zM12 13a3 3 0 100-6 3 3 0 000 6z' },
@@ -54,7 +55,7 @@ export const AdminShell = ({ user, nav, onNav, sessions, inventory, users, branc
   const sidebarW = collapsed ? 58 : 220;
   const visibleNav = NAV.filter(n => {
     if (isSupremeAdmin) {
-      return ['dashboard', 'reports', 'subscriptions', 'sub_history', 'super_admins', 'payment_settings', 'credentials'].includes(n.id);
+      return ['dashboard', 'reports', 'subscriptions', 'currency_config', 'sub_history', 'super_admins', 'payment_settings', 'credentials'].includes(n.id);
     }
     // Super Admin & Branch Admin Logic
     if (n.super) return false;
