@@ -319,7 +319,7 @@ export const Credentials = ({ users, sessions = [], updateUser, deleteUser, noti
     <>
       <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 14, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: 'var(--amber)', display: 'flex', alignItems: 'center', gap: 8 }}>
         <img src={AlertIcon} alt="" style={{ width: 18, height: 18 }} />
-        {isSupremeAdmin ? 'Changes are saved persistently. Super Admins must re-login to use new credentials.' : 'Changes are saved persistently. Washers must re-login to use new credentials.'}
+        {isSupremeAdmin ? 'Changes are saved persistently. Super Admins must re-login to use new credentials.' : 'Changes are saved persistently. Workers must re-login to use new credentials.'}
       </div>
       <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
         <div className="table-responsive-wrapper">
@@ -810,7 +810,7 @@ export const PaymentGatewaySettings = ({ notify, currentUser }) => {
         <p style={{ margin: '0 0 22px', fontSize: 13, color: 'var(--text-2)' }}>
           {currentUser?.role === 'SupremeAdmin'
             ? 'These keys are used to collect payments for Retailer subscription upgrades.'
-            : 'These keys are used to collect online payments from your customers during wash checkout.'}
+            : 'These keys are used to collect online payments from your customers during jobs checkout.'}
         </p>
         {loading ? <div style={{ fontSize: 13, color: 'var(--text-3)' }}>Loading...</div> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 400 }}>
@@ -1098,7 +1098,7 @@ export const Reports = ({ sessions, packages, branches, branchSubscription, user
           <>
             {/* Washer performance */}
             <Card>
-              <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>Revenue by Washer</h3>
+              <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>Revenue by Workers</h3>
               {Object.keys(washerMap).length === 0
                 ? <EmptyState icon={<img src={ChartIcon} alt="" style={{ width: 32, height: 32 }} />} title="No data yet" />
                 : Object.entries(washerMap).sort((a, b) => b[1].r - a[1].r).map(([name, stat]) => (
@@ -1487,7 +1487,7 @@ export const LoyaltySettings = ({ currentUser, customers, sessions, loyalty, upd
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-3)', borderRadius: 12, padding: '12px 14px', marginBottom: 16 }}>
             <div>
               <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>Enable Loyalty Programme</div>
-              <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 2 }}>Show rewards in Washer App checkout</div>
+              <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 2 }}>Show rewards in Workers App checkout</div>
             </div>
             <div onClick={() => set('enabled', !cfg.enabled)} style={{
               width: 48, height: 26, borderRadius: 99, border: 'none', padding: 0, cursor: 'pointer',
