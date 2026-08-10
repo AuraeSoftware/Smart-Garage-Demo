@@ -233,7 +233,7 @@ export const Branches = ({ branches, users, sessions, createBranch, updateBranch
 
                   {/* Stats */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginBottom: 14 }}>
-                    {[['Sessions', stats.sessions, 'var(--accent)'], ['Revenue', `${curr} ${stats.revenue}`, 'var(--green)'], ['Washers', stats.washers, 'var(--blue)']].map(([l, v, col]) => (
+                    {[['Sessions', stats.sessions, 'var(--accent)'], ['Revenue', `${curr} ${stats.revenue}`, 'var(--green)'], ['Workers', stats.washers, 'var(--blue)']].map(([l, v, col]) => (
                       <div key={l} style={{ background: 'var(--bg-3)', borderRadius: 9, padding: '9px', textAlign: 'center' }}>
                         <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 3 }}>{l}</div>
                         <div style={{ fontWeight: 800, fontSize: 13, color: col }}>{v}</div>
