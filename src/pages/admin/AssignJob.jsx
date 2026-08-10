@@ -60,7 +60,7 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
       return;
     }
     if (!customerName || !customerPhone || !locationName || !selectedWasher) {
-      notify('Please fill out Customer Info, Location, and Washer', 'warn');
+      notify('Please fill out Customer Info, Location, and Worker', 'warn');
       return;
     }
 
@@ -106,7 +106,7 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
     <div style={{ maxWidth: 600, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, margin: '0 0 8px', letterSpacing: '-0.02em', color: 'var(--text)' }}>Assign a Job</h1>
-        <p style={{ margin: 0, color: 'var(--text-3)', fontSize: 14 }}>Pre-fill job details and assign them directly to an available washer.</p>
+        <p style={{ margin: 0, color: 'var(--text-3)', fontSize: 14 }}>Pre-fill job details and assign them directly to an available worker.</p>
       </div>
 
       {limitReached && (
@@ -148,7 +148,7 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
         </div>
 
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>Vehicle Information (Optional — Washer can use AI)</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>Vehicle Information (Optional — Worker can use AI)</div>
           <div className="responsive-split-3" style={{ gap: 12 }}>
             <input id="assign-vehicle-make" name="vehicleMake" placeholder="Car Make (e.g. Toyota)" value={vehicleMake} onChange={e => setVehicleMake(e.target.value)}
               style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-3)', color: 'var(--text)', outline: 'none', fontFamily: 'inherit' }} />
@@ -170,7 +170,7 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
                 display: 'flex', flexDirection: 'column', justifyContent: 'center'
               }}>
               <div style={{ fontWeight: 700, fontSize: 14, color: selectedPackage === '' ? 'var(--accent)' : 'var(--text)' }}>To be decided</div>
-              <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>Let the washer select</div>
+              <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>Let the worker select</div>
             </div>
             {packages?.map(p => (
               <div key={p.id} onClick={() => setSelectedPackage(p.id)}
@@ -197,14 +197,14 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
         </div>
 
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>Assign To Washer</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>Assign To Worker</div>
           {washers.length === 0 && busyWashers.length === 0 ? (
             <div style={{ padding: 12, background: 'rgba(239,68,68,0.1)', color: 'var(--red)', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
-              No washers available in your branch!
+              No workers available in your branch!
             </div>
           ) : washers.length === 0 ? (
             <div style={{ padding: 12, background: 'rgba(239,68,68,0.1)', color: 'var(--red)', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
-              All washers are currently busy with pending jobs.
+              All workers are currently busy with pending jobs.
             </div>
           ) : (
             <div className="responsive-split-1-1" style={{ gap: 10 }}>
