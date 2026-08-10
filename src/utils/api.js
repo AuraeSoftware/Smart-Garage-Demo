@@ -233,6 +233,8 @@ export const API = {
     setQR: (data) => put('/api/settings/qr', data),
     getSupremeQR: () => get('/api/settings/supreme-qr'),
     setSupremeQR: (data) => put('/api/settings/supreme-qr', data),
+    getCurrencyRates: () => get('/api/settings/currency-rates'),
+    setCurrencyRates: (data) => put('/api/settings/currency-rates', data),
   },
   payment: {
     getRazorpayKey: (for_subscription = false) => post('/api/payment/razorpay-key', { for_subscription }),
