@@ -28,7 +28,7 @@ import { JobRequestForm } from './pages/public/JobRequestForm';
 import { JobTracking } from './pages/public/JobTracking';
 import { API, token } from './utils/api';
 import {
-  Washers, Credentials, Packages, PaymentSettingsPage, Reports, LiveMap, LoyaltySettings, SubscriptionPlans
+  Washers, Credentials, Packages, PaymentSettingsPage, Reports, LiveMap, LoyaltySettings, SubscriptionPlans, CurrencyConfigPage
 } from './pages/admin/AdminPages';
 import { NotificationsPage } from './pages/admin/NotificationsPage';
 
@@ -269,6 +269,7 @@ export default function App() {
       case 'credentials': return <Credentials users={data.users} sessions={data.sessions} updateUser={data.updateUser} deleteUser={data.deleteUser} notify={notify} userRole={currentUser.role} currentUser={currentUser} onNav={setAdminNav} />;
       case 'packages': return <Packages packages={data.packages} branches={data.branches} sessions={data.sessions} inventory={data.inventory} createPackage={data.createPackage} updatePackage={data.updatePackage} deletePackage={data.deletePackage} notify={notify} onNav={setAdminNav} branchSubscription={branchSubscription} currentUser={currentUser} />;
       case 'subscriptions': return <SubscriptionPlans plans={data.subscriptionPlans} createPlan={data.createSubscriptionPlan} updatePlan={data.updateSubscriptionPlan} deletePlan={data.deleteSubscriptionPlan} notify={notify} onNav={setAdminNav} />;
+      case 'currency_config': return <CurrencyConfigPage plans={data.subscriptionPlans} notify={notify} />;
       case 'sub_history': return <SubscriptionHistoryPage branches={data.branches} currentUser={currentUser} users={data.users} />;
       case 'branches': return <Branches branches={data.branches} users={data.users} sessions={data.sessions} createBranch={data.createBranch} updateBranch={data.updateBranch} deleteBranch={data.deleteBranch} createUser={data.createUser} updateUser={data.updateUser} notify={notify} userRole={currentUser.role} currentUser={currentUser} subscriptionPlans={data.subscriptionPlans} onNav={setAdminNav} />;
       case 'super_admins': return <SuperAdminsPage users={data.users} branches={data.branches} subscriptionPlans={data.subscriptionPlans} updateUser={data.updateUser} deleteUser={data.deleteUser} updateBranch={data.updateBranch} notify={notify} onNav={setAdminNav} />;
