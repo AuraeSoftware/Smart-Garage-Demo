@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { getCurrency } from '../../utils/messaging';
+import { getCurrency, getConvertedPrice } from '../../utils/messaging';
 import { Card, SectionTitle, Chip, Modal, Btn, Inp } from '../../components/common/UI';
 import ActiveIcon from '../../assets/icons/active-icon.png';
 import { API } from '../../utils/api';
 
 export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
   const curr = getCurrency(currentUser?.phone);
-  const currencyCode = curr === 'INR' ? 'INR' : 'MYR';
+  const getRazorpayCurrencyCode = (c) => {
+    if (c === 'INR') return 'INR';
+    if (c === 'SGD') return 'SGD';
+    if (c === '$') return 'USD';
+    if (c === 'Rp') return 'IDR';
+    return 'MYR';
+  };
+  const currencyCode = getRazorpayCurrencyCode(curr);
   const isSuperOrSupreme = currentUser?.role === 'SuperAdmin' || currentUser?.role === 'SupremeAdmin' || currentUser?.role === 'super_admin';
 
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -146,7 +153,21 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
   const handleUpgrade = async (paymentData = null) => {
     setLoading(true); setError(''); setSuccess('');
     try {
-      const activePay = paymentData || pay;
+      const selectedPlanInfo = (data.subscriptionPlans || []).find(p => p.id === selectedPlanId);
+      let priceType = 'price';
+      let priceStr = selectedPlanInfo?.price;
+      if (billingCycle === 'annual' && selectedPlanInfo?.annual_price) {
+        priceStr = selectedPlanInfo.annual_price;
+        priceType = 'annual_price';
+      } else if (billingCycle === 'monthly' && selectedPlanInfo?.monthly_price) {
+        priceStr = selectedPlanInfo.monthly_price;
+        priceType = 'monthly_price';
+      }
+      
+      const calcAmount = selectedPlanInfo ? getConvertedPrice(priceStr, curr, selectedPlanInfo.id, priceType) : 0;
+      
+      let activePay = paymentData || pay || { currency: curr };
+      activePay = { ...activePay, amount: activePay.amount || calcAmount };
       const payload = {
         userId: currentUser.id,
         branchId: mainBranch?.id,
@@ -172,14 +193,18 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
     setQrLoading(true); setError(''); setDynamicQrUrl('');
     try {
       const selectedPlanInfo = (data.subscriptionPlans || []).find(p => p.id === selectedPlanId);
-      let priceStr = curr === 'INR' ? (selectedPlanInfo.price_inr || selectedPlanInfo.price) : selectedPlanInfo.price;
+      
+      let priceType = 'price';
+      let priceStr = selectedPlanInfo.price;
       if (billingCycle === 'annual' && selectedPlanInfo.annual_price) {
-        priceStr = (curr === 'INR' ? (selectedPlanInfo.annual_price_inr || selectedPlanInfo.annual_price) : selectedPlanInfo.annual_price).toString();
+        priceStr = selectedPlanInfo.annual_price;
+        priceType = 'annual_price';
       } else if (billingCycle === 'monthly' && selectedPlanInfo.monthly_price) {
-        priceStr = (curr === 'INR' ? (selectedPlanInfo.monthly_price_inr || selectedPlanInfo.monthly_price) : selectedPlanInfo.monthly_price).toString();
+        priceStr = selectedPlanInfo.monthly_price;
+        priceType = 'monthly_price';
       }
       
-      const amount = parseFloat(priceStr.toString().replace(/[^0-9.]/g, ''));
+      const amount = getConvertedPrice(priceStr, curr, selectedPlanInfo.id, priceType);
       
       const res = await API.payment.createSubscriptionQr(selectedPlanId, amount, currencyCode);
       setDynamicQrUrl(res.qr_url);
@@ -206,14 +231,17 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
       const { key_id } = await API.payment.getRazorpayKey(true);
       const selectedPlanInfo = (data.subscriptionPlans || []).find(p => p.id === selectedPlanId);
 
-      let priceStr = curr === 'INR' ? (selectedPlanInfo.price_inr || selectedPlanInfo.price) : selectedPlanInfo.price;
+      let priceType = 'price';
+      let priceStr = selectedPlanInfo.price;
       if (billingCycle === 'annual' && selectedPlanInfo.annual_price) {
-        priceStr = `${curr} ${curr === 'INR' ? (selectedPlanInfo.annual_price_inr || selectedPlanInfo.annual_price) : selectedPlanInfo.annual_price}`;
+        priceStr = selectedPlanInfo.annual_price;
+        priceType = 'annual_price';
       } else if (billingCycle === 'monthly' && selectedPlanInfo.monthly_price) {
-        priceStr = `${curr} ${curr === 'INR' ? (selectedPlanInfo.monthly_price_inr || selectedPlanInfo.monthly_price) : selectedPlanInfo.monthly_price}`;
+        priceStr = selectedPlanInfo.monthly_price;
+        priceType = 'monthly_price';
       }
 
-      const amount = parseFloat(priceStr.replace(/[^0-9.]/g, ''));
+      const amount = getConvertedPrice(priceStr, curr, selectedPlanInfo.id, priceType);
 
       const { order_id } = await API.payment.createRazorpayOrder(amount, true, currencyCode);
 
@@ -273,12 +301,12 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
 
   const selectedPlanInfo = (data.subscriptionPlans || []).find(p => p.id === selectedPlanId);
 
-  let selectedPlanPriceStr = curr === 'INR' ? (selectedPlanInfo?.price_inr || selectedPlanInfo?.price) : selectedPlanInfo?.price;
+  let selectedPlanPriceStr = selectedPlanInfo ? `${curr} ${getConvertedPrice(selectedPlanInfo.price, curr, selectedPlanInfo.id, 'price')}` : '';
   if (selectedPlanInfo) {
     if (billingCycle === 'annual' && selectedPlanInfo.annual_price) {
-      selectedPlanPriceStr = `${curr} ${curr === 'INR' ? (selectedPlanInfo.annual_price_inr || selectedPlanInfo.annual_price) : selectedPlanInfo.annual_price}`;
+      selectedPlanPriceStr = `${curr} ${getConvertedPrice(selectedPlanInfo.annual_price, curr, selectedPlanInfo.id, 'annual_price')}`;
     } else if (billingCycle === 'monthly' && selectedPlanInfo.monthly_price) {
-      selectedPlanPriceStr = `${curr} ${curr === 'INR' ? (selectedPlanInfo.monthly_price_inr || selectedPlanInfo.monthly_price) : selectedPlanInfo.monthly_price}`;
+      selectedPlanPriceStr = `${curr} ${getConvertedPrice(selectedPlanInfo.monthly_price, curr, selectedPlanInfo.id, 'monthly_price')}`;
     }
   }
 
@@ -327,19 +355,19 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
           <div>
             <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, marginBottom: 8 }}>Price</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
-              {typeof branchSubscription.price === 'string' ? (curr === 'INR' ? branchSubscription.price_inr || branchSubscription.price : branchSubscription.price.replace('RM ', curr + ' ')) : (branchSubscription.price || 'Free')}
+              {branchSubscription.price ? ((branchSubscription.price || '').toString().toLowerCase().includes('free') ? 'Free' : `${curr} ${getConvertedPrice(branchSubscription.price, curr, branchSubscription.id, 'price')}`) : 'Free'}
             </div>
           </div>
           <div>
             <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, marginBottom: 8 }}>Monthly</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
-              {branchSubscription.monthly_price > 0 ? `${curr} ${curr === 'INR' ? (branchSubscription.monthly_price_inr || 0) : branchSubscription.monthly_price}` : (branchSubscription.id === 'trial' || (branchSubscription.price || '').toLowerCase().includes('free') ? 'Free' : 'N/A')}
+              {branchSubscription.monthly_price > 0 ? `${curr} ${getConvertedPrice(branchSubscription.monthly_price, curr, branchSubscription.id, 'monthly_price')}` : (branchSubscription.id === 'trial' || (branchSubscription.price || '').toString().toLowerCase().includes('free') ? 'Free' : 'N/A')}
             </div>
           </div>
           <div>
             <div style={{ fontSize: 13, color: 'var(--text-3)', fontWeight: 600, marginBottom: 8 }}>Annual</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>
-              {branchSubscription.annual_price > 0 ? `${curr} ${curr === 'INR' ? (branchSubscription.annual_price_inr || 0) : branchSubscription.annual_price}` : (branchSubscription.id === 'trial' || (branchSubscription.price || '').toLowerCase().includes('free') ? 'Free' : 'N/A')}
+              {branchSubscription.annual_price > 0 ? `${curr} ${getConvertedPrice(branchSubscription.annual_price, curr, branchSubscription.id, 'annual_price')}` : (branchSubscription.id === 'trial' || (branchSubscription.price || '').toString().toLowerCase().includes('free') ? 'Free' : 'N/A')}
             </div>
           </div>
           <div>
@@ -431,9 +459,9 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
               .filter(plan => plan.id !== 'trial')
               .filter(plan => !(billingCycle === 'annual' && (!plan.annual_price || plan.annual_price <= 0)))
               .map(plan => {
-                let planPriceStr = curr === 'INR' ? (plan.price_inr || plan.price) : plan.price;
-                if (billingCycle === 'annual' && plan.annual_price) planPriceStr = `${curr} ${curr === 'INR' ? (plan.annual_price_inr || plan.annual_price) : plan.annual_price}`;
-                else if (billingCycle === 'monthly' && plan.monthly_price) planPriceStr = `${curr} ${curr === 'INR' ? (plan.monthly_price_inr || plan.monthly_price) : plan.monthly_price}`;
+                let planPriceStr = `${curr} ${getConvertedPrice(plan.price, curr, plan.id, 'price')}`;
+                if (billingCycle === 'annual' && plan.annual_price) planPriceStr = `${curr} ${getConvertedPrice(plan.annual_price, curr, plan.id, 'annual_price')}`;
+                else if (billingCycle === 'monthly' && plan.monthly_price) planPriceStr = `${curr} ${getConvertedPrice(plan.monthly_price, curr, plan.id, 'monthly_price')}`;
 
                 return (
                   <button
@@ -455,7 +483,7 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
                     <div style={{ textAlign: 'right' }}>
                       {billingCycle === 'annual' && plan.annual_price > 0 && plan.monthly_price > 0 && (
                         <div style={{ fontSize: 12, color: 'var(--text-2)', textDecoration: 'line-through', marginBottom: 2, fontWeight: 500 }}>
-                          {curr === 'INR' && plan.monthly_price_inr > 0 ? `INR ${plan.monthly_price_inr * 12}` : `${(plan.price || '').match(/^([a-zA-Z\s]+)/) ? (plan.price || '').match(/^([a-zA-Z\s]+)/)[1] : 'RM '}${plan.monthly_price * 12}`}
+                          {`${curr} ${getConvertedPrice(plan.monthly_price, curr, plan.id, 'monthly_price') * 12}`}
                         </div>
                       )}
                       <div style={{ fontWeight: 900, fontSize: 16, color: 'var(--text)' }}>{planPriceStr}</div>
