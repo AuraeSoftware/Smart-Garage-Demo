@@ -922,6 +922,24 @@ def signup_branch_admin(body: SignupSuperAdmin, background_tasks: BackgroundTask
                 days_to_add = num
                 
         expiry_date = (datetime.now() + timedelta(days=days_to_add)).isoformat()
+        try:
+            if body.payment and body.payment.get("amount") is not None:
+                amt = float(body.payment.get("amount"))
+            elif plan:
+                bc = body.payment.get("billing_cycle", "monthly")
+                curr = body.payment.get("currency", "MYR")
+                import re
+                if curr == "INR":
+                    p_val = plan.annual_price_inr if bc in ("annual", "annually") else plan.monthly_price_inr
+                else:
+                    p_val = plan.annual_price if bc in ("annual", "annually") else plan.monthly_price
+                    
+                if isinstance(p_val, str):
+                    p_val = re.sub(r'[^\d.]', '', p_val)
+                    
+                amt = float(p_val) if p_val is not None else 0.0
+        except Exception:
+            amt = 0.0
 
     branch = models.Branch(
         id=bid, name=body.branch_name, address=body.branch_address,
@@ -1181,13 +1199,20 @@ def approve_super_admin(user_id: int, background_tasks: BackgroundTasks, db: Ses
     if user.payment_info and plan:
         currency_val = user.payment_info.get("currency", "MYR") if user.payment_info else "MYR"
         try:
-            if currency_val == "INR":
-                price_val = plan.annual_price_inr if billing_cycle in ("annual", "annually") else plan.monthly_price_inr
-                if isinstance(price_val, str):
-                    price_val = price_val.replace("INR", "").replace(",", "").strip()
+            if user.payment_info and user.payment_info.get("amount") is not None:
+                amt = float(user.payment_info.get("amount"))
             else:
-                price_val = plan.annual_price if billing_cycle in ("annual", "annually") else plan.monthly_price
-            amt = float(price_val) if price_val else 0.0
+                import re
+                if currency_val == "INR":
+                    price_val = plan.annual_price_inr if billing_cycle in ("annual", "annually") else plan.monthly_price_inr
+                else:
+                    price_val = plan.annual_price if billing_cycle in ("annual", "annually") else plan.monthly_price
+                
+                # Ensure price_val is numeric by removing currency symbols and commas
+                if isinstance(price_val, str):
+                    price_val = re.sub(r'[^\d.]', '', price_val)
+                    
+                amt = float(price_val) if price_val else 0.0
         except:
             amt = 0.0
 
@@ -1610,6 +1635,7 @@ def upgrade_subscription(req: UpgradeRequest, background_tasks: BackgroundTasks,
         "pendingPlanId": req.newPlanId,
         "billing_cycle": req.billing_cycle,
         "currency": req.payment.get("currency", "MYR"),
+        "amount": req.payment.get("amount"),
         "requestedAt": datetime.utcnow().isoformat() + "Z",
     }
     # Mark as pending upgrade (NOT suspending — we use a separate flag via tracking_id)
@@ -1619,14 +1645,24 @@ def upgrade_subscription(req: UpgradeRequest, background_tasks: BackgroundTasks,
     plan_name = plan.label if plan else req.newPlanId
     
     amount = 0.0
-    if plan:
+    if req.payment and req.payment.get("amount") is not None:
+        amount = float(req.payment.get("amount"))
+    elif plan:
+        import re
         bc = req.billing_cycle
-        currency_val = req.payment.get("currency", "MYR")
+        currency_val = req.payment.get("currency", "MYR") if req.payment else "MYR"
         if currency_val == "INR":
             price_val = plan.annual_price_inr if bc in ("annual", "annually") else plan.monthly_price_inr
         else:
             price_val = plan.annual_price if bc in ("annual", "annually") else plan.monthly_price
-        amount = float(price_val) if price_val else 0.0
+            
+        if isinstance(price_val, str):
+            price_val = re.sub(r'[^\d.]', '', price_val)
+            
+        try:
+            amount = float(price_val) if price_val else 0.0
+        except:
+            amount = 0.0
 
     branch = db.query(models.Branch).filter(models.Branch.id == user.branch_id).first()
 
@@ -2700,10 +2736,14 @@ async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
         now = datetime.utcnow()
         branch.expiry_date = (now + timedelta(days=30*months)).strftime("%d/%m/%Y")
         
+    tx_currency = (payment_entity.get("currency") or payment_link_entity.get("currency") 
+                   or order_entity.get("currency") or qr_code_entity.get("currency") or "MYR")
+
     tx = models.SubscriptionTransaction(
         branch_id=order.branch_id,
         plan_id=order.plan_id,
         amount=order.amount,
+        currency=tx_currency,
         transaction_id=order.razorpay_payment_id,
         payment_date=datetime.utcnow().strftime("%d/%m/%Y"),
         status="Verified"
@@ -3876,3 +3916,24 @@ def fix_currency2():
             return 'Added currency column'
         except Exception as e:
             return str(e)
+
+@app.get("/api/settings/currency-rates")
+def get_currency_rates(db: Session = Depends(get_db)):
+    setting = db.query(models.Setting).filter(models.Setting.key == "currency_rates").first()
+    if setting and setting.value:
+        try:
+            return json.loads(setting.value)
+        except:
+            return {}
+    return {}
+
+@app.put("/api/settings/currency-rates")
+def set_currency_rates(data: dict, db: Session = Depends(get_db)):
+    setting = db.query(models.Setting).filter(models.Setting.key == "currency_rates").first()
+    if not setting:
+        setting = models.Setting(key="currency_rates", value=json.dumps(data))
+        db.add(setting)
+    else:
+        setting.value = json.dumps(data)
+    db.commit()
+    return {"status": "success"}
