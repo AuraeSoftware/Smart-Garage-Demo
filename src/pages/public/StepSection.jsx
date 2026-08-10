@@ -20,8 +20,8 @@ function StepSection() {
           <h3>Step 1</h3>
 
           <p className="step-description">
-            <strong>Scan QR & Request a Wash</strong> - Scan the QR code and
-            instantly create a car wash request. No calls, no waiting.
+            <strong>Scan QR & Request a Job</strong> - Scan the QR code and
+            instantly create a car job request. No calls, no waiting.
           </p>
 
           <div className="step-image">
@@ -46,7 +46,7 @@ function StepSection() {
           <h3>Step 3</h3>
 
           <p className="step-description">
-            <strong>Assign to Available Washer</strong> - The nearest available washer is assigned to the job for faster service and efficient operations.
+            <strong>Assign to Available Worker</strong> - The nearest available worker is assigned to the job for faster service and efficient operations.
           </p>
 
           <div className="step-image">
@@ -57,7 +57,7 @@ function StepSection() {
           <h3>Step 4</h3>
 
           <p className="step-description">
-            <strong>Wash Completed</strong> - Receive confirmation once the wash is completed successfully, along with service and payment details.
+            <strong>Job Completed</strong> - Receive confirmation once the job is completed successfully, along with service and payment details.
           </p>
 
           <div className="step-image">
