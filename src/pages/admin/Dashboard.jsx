@@ -740,7 +740,7 @@ export const Dashboard = ({ sessions, users, packages, customers, loyalty, updat
       <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 22 }}>
         <StatCard icon={<img src={RevenueIcon} alt="" style={{ width: 24, height: 24 }} />} label="Total Revenue" value={`${curr} ${totalRev.toLocaleString()}`} sub={`${curr} ${todayRev} today`} color="var(--accent)" />
         <StatCard icon={<img src={CarIcon} alt="" style={{ width: 24, height: 24 }} />} label="Total Sessions" value={sessions.length} sub={`${todaySes.length} today`} color="var(--accent-2)" />
-        <StatCard icon={<img src={WorkerIcon} alt="" style={{ width: 24, height: 24 }} />} label="Active Washers" value={activeWashers.length} sub={`of ${staff.length} staff`} color="var(--green)" />
+        <StatCard icon={<img src={WorkerIcon} alt="" style={{ width: 24, height: 24 }} />} label="Active Workers" value={activeWashers.length} sub={`of ${staff.length} staff`} color="var(--green)" />
 
       </div>
 
@@ -813,7 +813,7 @@ export const Dashboard = ({ sessions, users, packages, customers, loyalty, updat
           <button onClick={() => onNav('sessions')} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 13, fontWeight: 700 }}>View all →</button>
         </div>
         {sessions.length === 0
-          ? <EmptyState icon={<img src={CarIcon} alt="" style={{ width: 48, height: 48 }} />} title="No sessions yet" sub="Sessions from the Washer App appear here live" />
+          ? <EmptyState icon={<img src={CarIcon} alt="" style={{ width: 48, height: 48 }} />} title="No sessions yet" sub="Sessions from the Worker App appear here live" />
           : <div className="table-responsive-wrapper">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr>
