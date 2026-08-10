@@ -15,7 +15,7 @@ const NAV = [
   { id: 'dashboard', label: 'Dashboard', super: false, path: 'M3 3h7v7H3zM13 3h7v7h-7zM3 13h7v7H3z' },
   { id: 'sessions', label: 'Sessions', super: false, path: 'M4 6h16M4 10h16M4 14h10' },
   { id: 'customers', label: 'Customers', super: false, path: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' },
-  { id: 'washers', label: 'Washers', super: false, path: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8' },
+  { id: 'washers', label: 'Workers', super: false, path: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8' },
   { id: 'packages', label: 'Packages', super: false, path: 'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16zM3.27 6.96L12 12.01l8.73-5.05M12 22.08V12' },
 
   { id: 'reports', label: 'Reports', super: false, path: 'M18 20V10M12 20V4M6 20v-6' },
