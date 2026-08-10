@@ -236,7 +236,7 @@ export const IndividualDashboard = ({ user, onLogout, isDark, onToggleTheme }) =
                               const isAssigned = stat === 'assigned' || (stat === 'pending' && hasWasher);
                               return (
                                 <Chip color={isCompleted ? 'var(--green)' : isInProgress ? 'var(--blue)' : isAssigned ? 'var(--accent)' : 'var(--amber)'}>
-                                  {isCompleted ? 'Wash Completed' : isInProgress ? 'Wash in Progress' : isAssigned ? 'Washer on the way' : 'Looking for Washer'}
+                                  {isCompleted ? 'Job Completed' : isInProgress ? 'Job in Progress' : isAssigned ? 'Worker on the way' : 'Looking for Worker'}
                                 </Chip>
                               );
                             })()}
@@ -244,7 +244,7 @@ export const IndividualDashboard = ({ user, onLogout, isDark, onToggleTheme }) =
                           {job.washer && (
                             <div style={{ fontSize: 13, color: 'var(--text-2)' }}>
                               <img src={workerIcon} alt="" style={{ width: 14, height: 14, verticalAlign: 'middle', marginRight: 6 }} />
-                              Assigned Washer: {job.washer}
+                              Assigned Worker: {job.washer}
                             </div>
                           )}
                           {job.status === 'pending' && job.package?.time && (
@@ -357,7 +357,7 @@ export const IndividualDashboard = ({ user, onLogout, isDark, onToggleTheme }) =
                                 ['Vehicle', `${s.vehicle?.colour} ${s.vehicle?.make} ${s.vehicle?.model}`],
                                 ['Plate', s.vehicle?.plate || '—'],
                                 ['Package', s.package?.name],
-                                ['Washer', s.washer],
+                                ['Worker', s.washer],
                                 ['Branch', s.branch || '—'],
                                 ['Location', s.locationName || '—'],
                                 ['Payment', s.payment?.mode],
