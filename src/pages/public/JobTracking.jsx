@@ -102,7 +102,7 @@ export const JobTracking = ({ trackingId, isDark }) => {
         <div className="public-form-container" style={{ background: 'var(--card)', padding: '40px 32px', borderRadius: 24, boxShadow: 'var(--shadow)', border: '1px solid var(--border)' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <img src={LogoBrand} alt="Smart Garage" style={{ height: 80, display: 'block', margin: '0 auto' }} />
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: '16px 0 8px', color: 'var(--text)' }}>Track Your Wash</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 800, margin: '16px 0 8px', color: 'var(--text)' }}>Track Your Job</h2>
           <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)' }}>Tracking ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--text)' }}>{trackingId}</span></p>
         </div>
 
@@ -118,14 +118,14 @@ export const JobTracking = ({ trackingId, isDark }) => {
             <div style={{ position: 'relative', marginBottom: 30 }}>
               <div style={{ position: 'absolute', left: -27, top: 4, width: 14, height: 14, borderRadius: '50%', background: step >= 1 ? 'var(--accent)' : 'var(--bg-3)', border: `3px solid ${step >= 1 ? 'var(--accent-dim)' : 'var(--border)'}`, zIndex: 2 }} />
               <div style={{ fontSize: 15, fontWeight: 700, color: step >= 1 ? 'var(--text)' : 'var(--text-3)' }}>Request Received</div>
-              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>We have received your wash request.</div>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>We have received your job request.</div>
             </div>
 
-            {/* Step 2: Washer Assigned */}
+            {/* Step 2: Worker Assigned */}
             <div style={{ position: 'relative', marginBottom: 30 }}>
               <div style={{ position: 'absolute', left: -27, top: 4, width: 14, height: 14, borderRadius: '50%', background: step >= 2 ? 'var(--accent)' : 'var(--bg-3)', border: `3px solid ${step >= 2 ? 'var(--accent-dim)' : 'var(--border)'}`, zIndex: 2 }} />
-              <div style={{ fontSize: 15, fontWeight: 700, color: step >= 2 ? 'var(--text)' : 'var(--text-3)' }}>Washer Assigned</div>
-              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>A washer has been assigned and is heading to you or preparing.</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: step >= 2 ? 'var(--text)' : 'var(--text-3)' }}>Worker Assigned</div>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>A worker has been assigned and is heading to you or preparing.</div>
               {req?.job?.status === 'pending' && req?.job?.packageTime && step === 2 && (
                 <TrackingTimer 
                   startTime={req.job.submittedAt} 
@@ -138,7 +138,7 @@ export const JobTracking = ({ trackingId, isDark }) => {
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', left: -27, top: 4, width: 14, height: 14, borderRadius: '50%', background: step >= 3 ? 'var(--green)' : 'var(--bg-3)', border: `3px solid ${step >= 3 ? 'rgba(34,197,94,0.2)' : 'var(--border)'}`, zIndex: 2 }} />
               <div style={{ fontSize: 15, fontWeight: 700, color: step >= 3 ? 'var(--text)' : 'var(--text-3)' }}>Completed</div>
-              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>Your wash is complete. Thank you for choosing Smart Garage!</div>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>Your job is complete. Thank you for choosing Smart Garage!</div>
             </div>
           </div>
         )}
