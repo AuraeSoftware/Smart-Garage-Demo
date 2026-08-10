@@ -7,8 +7,8 @@ import step4 from '../../assets/steps-imgs/step4.png';
 const steps = [
   {
     step: 'Step 1',
-    title: 'Scan QR & Request a Wash',
-    desc: 'Scan the QR code and instantly create a car wash request. No calls, no waiting.',
+    title: 'Scan QR & Request a Job',
+    desc: 'Scan the QR code and instantly create a car job request. No calls, no waiting.',
     img: step1
   },
   {
@@ -19,14 +19,14 @@ const steps = [
   },
   {
     step: 'Step 3',
-    title: 'Assign to Available Washer',
-    desc: 'The nearest available washer is assigned to the job for faster service and efficient operations.',
+    title: 'Assign to Available Worker',
+    desc: 'The nearest available worker is assigned to the job for faster service and efficient operations.',
     img: step3
   },
   {
     step: 'Step 4',
-    title: 'Wash Completed',
-    desc: 'Receive confirmation once the wash is completed successfully, along with service and payment details.',
+    title: 'Job Completed',
+    desc: 'Receive confirmation once the job is completed successfully, along with service and payment details.',
     img: step4
   }
 ];
@@ -35,7 +35,7 @@ export function HowItWorksSidebar() {
   return (
     <div className="how-it-works-sidebar">
       <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)', marginBottom: 4 }}>How it works in four simple steps</h2>
-      <p style={{ color: 'var(--text-2)', fontSize: 13, marginBottom: 16 }}>Automated workflow for smarter car wash operations.</p>
+      <p style={{ color: 'var(--text-2)', fontSize: 13, marginBottom: 16 }}>Automated workflow for smarter car job operations.</p>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
         {steps.map((s, i) => (
