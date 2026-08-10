@@ -10,7 +10,7 @@ import DownloadIcon from '../../assets/icons/download-icon.png';
 import SearchIcon from '../../assets/icons/search-icon.png';
 import CarIcon from '../../assets/icons/car-icon.png';
 
-const PAY_CLR = { Cash: '#22C55E', 'QR Payment': '#22D3EE', 'Online Transfer': '#A78BFA' };
+const PAY_CLR = { Cash: '#22C55E', 'QR Payment': '#22D3EE', 'Online Transfer': '#A78BFA', 'Dynamic QR': '#F43F5E' };
 
 const normalizePay = (m) => {
   if (!m) return '';
@@ -24,6 +24,8 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
 
   const [search, setSearch] = useState('');
   const [periodFilt, setPeriodFilt] = useState('All');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [payFilt, setPayFilt] = useState('All');
   const [washFilt, setWashFilt] = useState('All');
   const [brFilt, setBrFilt] = useState('All');
@@ -72,6 +74,15 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
         if (periodFilt === 'Daily') matchPeriod = d.toDateString() === now.toDateString();
         else if (periodFilt === 'Weekly') { const diff = (now - d) / (1000 * 60 * 60 * 24); matchPeriod = diff >= 0 && diff <= 7; }
         else if (periodFilt === 'Monthly') matchPeriod = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        else if (periodFilt === 'Custom') {
+          if (customStartDate && customEndDate) {
+            const start = new Date(customStartDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(customEndDate);
+            end.setHours(23, 59, 59, 999);
+            matchPeriod = d >= start && d <= end;
+          }
+        }
       }
     }
     return matchQ && matchP && matchW && matchBr && matchPeriod;
@@ -81,7 +92,7 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
   const totalRev = sessions.reduce((a, s) => a + (s.total || 0), 0);
 
   const exportCSV = () => {
-    const h = 'Invoice,Date,Branch,Washer,Make,Model,Colour,Plate,Package,Amount,Payment,Ref\n';
+    const h = 'Invoice,Date,Branch,Worker,Make,Model,Colour,Plate,Package,Amount,Payment,Ref\n';
     const rows = filtered.map(s => [s.id, s.date, s.branchId || '', s.washer, s.vehicle?.make, s.vehicle?.model, s.vehicle?.colour, s.vehicle?.plate, s.package?.name, s.total, s.payment?.mode, s.payment?.ref].join(',')).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([h + rows], { type: 'text/csv' }));
@@ -121,15 +132,17 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
             { value: 'Daily', label: 'Today (Daily)' },
             { value: 'Weekly', label: 'This Week (Weekly)' },
             { value: 'Monthly', label: 'This Month (Monthly)' },
+            { value: 'Custom', label: 'Custom Date' },
           ]},
           { id: 'pay', label: 'payFilt', val: payFilt, set: setPayFilt, opts: [
             { value: 'All', label: 'All Payments' },
             { value: 'Cash', label: 'Cash' },
             { value: 'QR Payment', label: 'QR Payment' },
+            { value: 'Dynamic QR', label: 'Dynamic QR' },
             { value: 'Online Transfer', label: 'Online Transfer' },
           ]},
           { id: 'washer', label: 'washFilt', val: washFilt, set: setWashFilt, opts: [
-            { value: 'All', label: 'All Washers' },
+            { value: 'All', label: 'All Workers' },
             ...Array.from(new Set(washers.map(w => w.name).filter(Boolean))).map(n => ({ value: n, label: n }))
           ]},
           { id: 'branch', label: 'brFilt', val: brFilt, set: setBrFilt, opts: [
@@ -148,6 +161,13 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
           />
         ))}
         <Btn variant="ghost" onClick={exportCSV}><img src={DownloadIcon} alt="" style={{ width: 14, height: 14, marginRight: 6, verticalAlign: 'middle' }} />Export CSV</Btn>
+        {periodFilt === 'Custom' && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input type="date" value={customStartDate} onChange={e => setCustomStartDate(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-3)', color: 'var(--text)', outline: 'none', fontFamily: 'inherit' }} />
+            <span style={{ color: 'var(--text-3)', fontSize: 13, fontWeight: 600 }}>to</span>
+            <input type="date" value={customEndDate} onChange={e => setCustomEndDate(e.target.value)} style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-3)', color: 'var(--text)', outline: 'none', fontFamily: 'inherit' }} />
+          </div>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-start' }}>
@@ -157,7 +177,7 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                 <tr style={{ background: 'var(--bg-3)' }}>
-                  {['Invoice', 'Date', 'Branch', 'Washer', 'Vehicle', 'Plate', 'Package', 'Amount', 'Payment'].map(h => (
+                  {['Invoice', 'Date', 'Branch', 'Worker', 'Vehicle', 'Plate', 'Package', 'Amount', 'Payment'].map(h => (
                     <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: 11, fontWeight: 700, color: 'var(--text-3)', borderBottom: '1px solid var(--border)', letterSpacing: '0.07em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
