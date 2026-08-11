@@ -204,9 +204,19 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
         priceType = 'monthly_price';
       }
       
-      const amount = getConvertedPrice(priceStr, curr, selectedPlanInfo.id, priceType);
+      const prefixMatch = String(selectedPlanPriceStr).match(/^([^\d\s.,]+)\s*/);
+      const displayCurr = prefixMatch ? prefixMatch[1].trim() : curr;
+      let finalCurrencyCode = displayCurr;
+      if (displayCurr === 'RM') finalCurrencyCode = 'MYR';
+      else if (displayCurr === '$') finalCurrencyCode = 'USD';
+      else if (displayCurr === 'Rp') finalCurrencyCode = 'IDR';
+      else if (displayCurr === '€') finalCurrencyCode = 'EUR';
+      else if (displayCurr === '£') finalCurrencyCode = 'GBP';
+
+      const amountStr = String(selectedPlanPriceStr).replace(prefixMatch ? prefixMatch[0] : '', '');
+      const amount = parseFloat(amountStr.replace(/[^0-9.]/g, '')) || 0;
       
-      const res = await API.payment.createSubscriptionQr(selectedPlanId, amount, currencyCode);
+      const res = await API.payment.createSubscriptionQr(selectedPlanId, amount, finalCurrencyCode);
       setDynamicQrUrl(res.qr_url);
       setOrderNumber(res.order_id);
     } catch (err) {
@@ -241,14 +251,24 @@ export const MyPlanPage = ({ currentUser, branchSubscription, data }) => {
         priceType = 'monthly_price';
       }
 
-      const amount = getConvertedPrice(priceStr, curr, selectedPlanInfo.id, priceType);
+      const prefixMatch = String(selectedPlanPriceStr).match(/^([^\d\s.,]+)\s*/);
+      const displayCurr = prefixMatch ? prefixMatch[1].trim() : curr;
+      let finalCurrencyCode = displayCurr;
+      if (displayCurr === 'RM') finalCurrencyCode = 'MYR';
+      else if (displayCurr === '$') finalCurrencyCode = 'USD';
+      else if (displayCurr === 'Rp') finalCurrencyCode = 'IDR';
+      else if (displayCurr === '€') finalCurrencyCode = 'EUR';
+      else if (displayCurr === '£') finalCurrencyCode = 'GBP';
 
-      const { order_id } = await API.payment.createRazorpayOrder(amount, true, currencyCode);
+      const amountStr = String(selectedPlanPriceStr).replace(prefixMatch ? prefixMatch[0] : '', '');
+      const amount = parseFloat(amountStr.replace(/[^0-9.]/g, '')) || 0;
+
+      const { order_id } = await API.payment.createRazorpayOrder(amount, true, finalCurrencyCode);
 
       const options = {
         key: key_id,
         amount: Math.round(amount * 100),
-        currency: currencyCode,
+        currency: finalCurrencyCode,
         name: "Smart Garage Supreme",
         description: `Upgrade to ${selectedPlanInfo.label}`,
         order_id: order_id,

@@ -339,11 +339,19 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
     const generateDynamicQr = async () => {
         setQrLoading(true); setError(''); setDynamicQrUrl('');
         try {
-            const curr = getCurrency(br.phone);
-            const currencyCode = curr === 'RM' ? 'MYR' : curr === '$' ? 'USD' : curr === 'Rp' ? 'IDR' : curr;
             const selectedPlan = plans.find(p => p.id === br.subscription);
             const displayPriceStr = getDisplayPrice(selectedPlan) || '0';
-            const amount = parseFloat(String(displayPriceStr).replace(/[^0-9.]/g, ''));
+            const prefixMatch = String(displayPriceStr).match(/^([^\d\s.,]+)\s*/);
+            const displayCurr = prefixMatch ? prefixMatch[1].trim() : getCurrency(br.phone);
+            let currencyCode = displayCurr;
+            if (displayCurr === 'RM') currencyCode = 'MYR';
+            else if (displayCurr === '$') currencyCode = 'USD';
+            else if (displayCurr === 'Rp') currencyCode = 'IDR';
+            else if (displayCurr === '€') currencyCode = 'EUR';
+            else if (displayCurr === '£') currencyCode = 'GBP';
+            
+            const amountStr = String(displayPriceStr).replace(prefixMatch ? prefixMatch[0] : '', '');
+            const amount = parseFloat(amountStr.replace(/[^0-9.]/g, '')) || 0;
             const res = await API.payment.createSubscriptionQr(br.subscription, amount, currencyCode);
             setDynamicQrUrl(res.qr_url);
             setOrderNumber(res.order_id);
@@ -367,11 +375,19 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
             }
 
             const { key_id } = await API.payment.getRazorpayKey(true);
-            const curr = getCurrency(br.phone);
-            const currencyCode = curr === 'RM' ? 'MYR' : curr === '$' ? 'USD' : curr === 'Rp' ? 'IDR' : curr;
             const selectedPlan = plans.find(p => p.id === br.subscription);
             const displayPriceStr = getDisplayPrice(selectedPlan) || '0';
-            const amount = parseFloat(String(displayPriceStr).replace(/[^0-9.]/g, ''));
+            const prefixMatch = String(displayPriceStr).match(/^([^\d\s.,]+)\s*/);
+            const displayCurr = prefixMatch ? prefixMatch[1].trim() : getCurrency(br.phone);
+            let currencyCode = displayCurr;
+            if (displayCurr === 'RM') currencyCode = 'MYR';
+            else if (displayCurr === '$') currencyCode = 'USD';
+            else if (displayCurr === 'Rp') currencyCode = 'IDR';
+            else if (displayCurr === '€') currencyCode = 'EUR';
+            else if (displayCurr === '£') currencyCode = 'GBP';
+            
+            const amountStr = String(displayPriceStr).replace(prefixMatch ? prefixMatch[0] : '', '');
+            const amount = parseFloat(amountStr.replace(/[^0-9.]/g, '')) || 0;
 
             const { order_id } = await API.payment.createRazorpayOrder(amount, true, currencyCode);
 
@@ -391,7 +407,9 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
                             for_subscription: true
                         });
                         const displayPriceStr = getDisplayPrice(selectedPlan) || '0';
-                        const amount = parseFloat(String(displayPriceStr).replace(/[^0-9.]/g, ''));
+                        const prefixMatch = String(displayPriceStr).match(/^([^\d\s.,]+)\s*/);
+                        const amountStr = String(displayPriceStr).replace(prefixMatch ? prefixMatch[0] : '', '');
+                        const amount = parseFloat(amountStr.replace(/[^0-9.]/g, '')) || 0;
                         const successPayment = {
                             transactionId: response.razorpay_payment_id,
                             accountName: br.name,

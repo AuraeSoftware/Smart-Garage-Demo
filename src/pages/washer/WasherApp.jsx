@@ -2238,7 +2238,7 @@ const JobTimer = ({ startTime, durationMinutes }) => {
   const durationSeconds = durationMinutes * 60;
   
   const getElapsedSeconds = () => {
-    const safeStartTime = startTime || Date.now();
+    const safeStartTime = typeof startTime === 'string' ? startTime.replace('T', ' ').replace(/-/g, '/') : startTime;
     return Math.floor((Date.now() - new Date(safeStartTime).getTime()) / 1000);
   };
   const [elapsed, setElapsed] = useState(getElapsedSeconds());
@@ -2285,7 +2285,7 @@ const JobTimer = ({ startTime, durationMinutes }) => {
 };
 
 const JobCard = ({ job, onView, isBlocked }) => {
-  const safeSubmittedAt = job.submittedAt || Date.now();
+  const safeSubmittedAt = typeof job.submittedAt === 'string' ? job.submittedAt.replace('T', ' ').replace(/-/g, '/') : job.submittedAt;
   const elapsed = Math.round((Date.now() - new Date(safeSubmittedAt).getTime()) / 60000);
   const elapsedStr = elapsed < 60 ? `${elapsed}m ago` : `${Math.floor(elapsed / 60)}h ${elapsed % 60}m ago`;
   const packageMins = job.package?.time ? parsePackageTime(job.package.time) : 0;
