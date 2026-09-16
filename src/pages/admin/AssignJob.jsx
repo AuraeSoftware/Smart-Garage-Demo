@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Btn, BackButton, Dropdown } from '../../components/common/UI';
+import { Btn, Dropdown } from '../../components/common/UI';
 
 export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser, addPendingJob, notify, onNav, branchSubscription, sessions }) => {
   const [customerName, setCustomerName] = useState('');

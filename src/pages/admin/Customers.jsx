@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getCurrency } from '../../utils/messaging';
-import { Card, StatCard, Chip, Btn, EmptyState, Inp , BackButton} from '../../components/common/UI';
+import { Card, StatCard, Chip, Btn, EmptyState, Inp } from '../../components/common/UI';
 import GroupIcon from '../../assets/icons/group-icon.png';
 import ActiveIcon from '../../assets/icons/active-icon.png';
 import RevenueIcon from '../../assets/icons/revenue-icon-vec.png';

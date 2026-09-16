@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useHashNav } from '../../hooks/useHashNav';
-import { Btn, Inp, PhoneInp, Modal, Dropdown, Table, ConfirmModal, ThemeToggle } from '../../components/common/UI';
+import { Btn, Inp, PhoneInp, Modal, Dropdown, ThemeToggle } from '../../components/common/UI';
 import NotificationsDropdown from '../../components/common/NotificationsDropdown';
 import { generateInvoicePDF } from '../../utils/pdf';
 import { openWhatsApp, sendPushNotification, getCurrency } from '../../utils/messaging';

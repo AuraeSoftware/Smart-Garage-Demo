@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getCurrency } from '../../utils/messaging';
-import { Card, Chip, Btn, Inp, StatCard, EmptyState , BackButton, Dropdown} from '../../components/common/UI';
+import { Card, Chip, Btn, Inp, StatCard, EmptyState, Dropdown} from '../../components/common/UI';
 import { generateInvoicePDF } from '../../utils/pdf';
 import { openWhatsApp } from '../../utils/messaging';
 import ReceiptIcon from '../../assets/icons/receipt-icon.png';
