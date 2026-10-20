@@ -74,7 +74,7 @@ export const JobRequestsAdmin = ({ jobRequests, users, packages, branches, curre
     return (jobRequests || []).filter(r => selectedBranch === 'all' || r.branchId === selectedBranch);
   }, [jobRequests, selectedBranch]);
 
-  const washers = useMemo(() => {
+  const workers = useMemo(() => {
     return (users || []).filter(u => {
       if (u.role !== 'Washer' || u.status !== 'Active' || u.is_locked) return false;
       if (selectedBranch !== 'all' && u.branch_id !== selectedBranch && u.branchId !== selectedBranch) return false;
@@ -93,7 +93,7 @@ export const JobRequestsAdmin = ({ jobRequests, users, packages, branches, curre
 
   const handleAssignSubmit = async () => {
     if (!selectedWasher) {
-      notify('Please select a washer', 'warn');
+      notify('Please select a worker', 'warn');
       return;
     }
     try {
@@ -377,11 +377,11 @@ export const JobRequestsAdmin = ({ jobRequests, users, packages, branches, curre
 
             <div style={{ marginBottom: 20 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-2)', marginBottom: 8 }}>Select Worker</label>
-              {washers.length === 0 ? (
+              {workers.length === 0 ? (
                 <div style={{ padding: 12, background: 'rgba(239,68,68,0.1)', color: 'var(--red)', borderRadius: 8, fontSize: 13 }}>No workers available in this branch.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {washers.map(w => (
+                  {workers.map(w => (
                     <div key={w.id} onClick={() => setSelectedWasher(w.id.toString())}
                       style={{ padding: '12px 16px', borderRadius: 10, cursor: 'pointer', border: selectedWasher === w.id.toString() ? '2px solid var(--accent)' : '2px solid transparent', background: selectedWasher === w.id.toString() ? 'var(--accent-dim)' : 'var(--bg-3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 600, color: selectedWasher === w.id.toString() ? 'var(--accent)' : 'var(--text)' }}>{w.name}</span>
@@ -398,7 +398,7 @@ export const JobRequestsAdmin = ({ jobRequests, users, packages, branches, curre
                 value={selectedPackage}
                 onChange={setSelectedPackage}
                 options={[
-                  { value: '', label: 'To be decided by washer' },
+                  { value: '', label: 'To be decided by worker' },
                   ...(packages || []).map(p => ({ value: p.id, label: `${p.name} (${curr} ${p.price})` }))
                 ]}
               />

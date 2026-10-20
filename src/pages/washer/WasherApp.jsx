@@ -133,11 +133,11 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
   useEffect(() => {
     API.settings.getBankDetails().then(data => {
       if (data) setBranchBankDetails(data);
-    }).catch(err => console.warn('Failed to fetch washer bank details', err));
+    }).catch(err => console.warn('Failed to fetch worker bank details', err));
 
     API.settings.getQR().then(res => {
       if (res && res.value) setBranchQrLabel(res.value);
-    }).catch(err => console.warn('Failed to fetch washer QR label', err));
+    }).catch(err => console.warn('Failed to fetch worker QR label', err));
 
     API.settings.getRazorpay().then(data => {
       if (data) setRazorpayConfig(data);
@@ -437,7 +437,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
       }, 800);
     } catch (err) {
       console.error(err);
-      notify(err.response?.data?.detail || "Failed to take job. Another washer might have taken it.", "error");
+      notify(err.response?.data?.detail || "Failed to take job. Another worker might have taken it.", "error");
       fetchAvailableRequests();
     } finally {
       setTakingJobId(null);
@@ -630,7 +630,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
             selectedDeviceId = backCamera.deviceId;
           }
 
-          codeReader.decodeFromVideoDevice(selectedDeviceId, 'washer-qr-reader', (result, err) => {
+          codeReader.decodeFromVideoDevice(selectedDeviceId, 'worker-qr-reader', (result, err) => {
             if (result) {
               const text = result.getText();
               if (scanHandlerRef.current) scanHandlerRef.current(text);
@@ -1061,7 +1061,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
           </div>
           <h2 style={{ margin: '0 0 10px', color: 'var(--text)', fontSize: 24, fontWeight: 800 }}>Account Locked</h2>
           <p style={{ margin: '0 0 30px', color: 'var(--text-2)', fontSize: 15, maxWidth: 400, lineHeight: 1.5 }}>
-            Your access is currently restricted because your branch has exceeded its subscription limit for the number of active washers. Please contact your branch administrator to upgrade the plan or free up a slot.
+            Your access is currently restricted because your branch has exceeded its subscription limit for the number of active workers. Please contact your branch administrator to upgrade the plan or free up a slot.
           </p>
           <Btn variant="danger" onClick={onLogout}>Sign Out</Btn>
         </div>
@@ -1247,7 +1247,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
 
                             <button onClick={() => {
                 if (isBlocked) {
-                  notify(user?.is_locked ? 'Your account is locked due to branch washer limits.' : `Branch plan is ${isExpired ? 'expired' : 'over its session limit'}. Cannot start new wash.`, 'error');
+                  notify(user?.is_locked ? 'Your account is locked due to branch worker limits.' : `Branch plan is ${isExpired ? 'expired' : 'over its session limit'}. Cannot start new wash.`, 'error');
                   return;
                 }
                 resetIntake();
@@ -1350,7 +1350,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
               {isBlocked && (
                 <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid var(--red)', borderRadius: 12, padding: '16px 20px', marginBottom: 22 }}>
                   <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--red)', marginBottom: 4 }}>{user?.is_locked ? 'Account Locked!' : isExpired ? 'Plan Expired!' : 'Session Limit Reached!'}</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-2)' }}>{user?.is_locked ? 'Your branch has exceeded its active washer limit.' : `The subscription plan for this branch is ${isExpired ? 'expired' : 'over its session limit'}.`} You cannot start new jobs until the Admin updates the plan.</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-2)' }}>{user?.is_locked ? 'Your branch has exceeded its active worker limit.' : `The subscription plan for this branch is ${isExpired ? 'expired' : 'over its session limit'}.`} You cannot start new jobs until the Admin updates the plan.</div>
                 </div>
               )}
 
@@ -2107,7 +2107,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
                   {isScanningProduct ? (
                     <>
                       <div style={{ position: 'relative', width: '100%', maxWidth: '350px', margin: '0 auto', borderRadius: '16px', overflow: 'hidden', background: '#000', minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <video id="washer-qr-reader" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></video>
+                        <video id="worker-qr-reader" style={{ width: '100%', height: '100%', objectFit: 'cover' }}></video>
 
                         {/* Scanning Animation Overlay - Only show if no error */}
                         {!cameraError && (
@@ -2159,7 +2159,7 @@ export const WasherApp = ({ user, packages, inventory, consumeInventoryItem, qrL
                         90% { opacity: 1; }
                         100% { top: 95%; opacity: 0; }
                       }
-                      #washer-qr-reader {
+                      #worker-qr-reader {
                         object-fit: cover !important;
                         border-radius: 16px;
                       }

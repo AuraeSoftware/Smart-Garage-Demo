@@ -4,9 +4,9 @@ OS2 Studio · Dindigul, Tamil Nadu
 
 Role hierarchy:
   SupremeAdmin  = Platform owner (OS2 Studio) — full access
-  Admin         = Retailer — packages/QR/loyalty/washers, no branches/SuperAdmin
+  Admin         = Retailer — packages/QR/loyalty/workers, no branches/SuperAdmin
   SuperAdmin    = Branch Admin — scoped to their branch_id only
-  Washer        = Washer App user
+  Washer        = Worker App user
 """
 import json
 import os
@@ -246,7 +246,11 @@ def calculate_expiry_date(duration: str):
             days = int(''.join(filter(str.isdigit, dur)))
         except: pass
     elif "month" in dur:
-        days = 30
+        try:
+            n = int(''.join(filter(str.isdigit, dur)))
+            days = 30 * n if n > 0 else 30
+        except Exception:
+            days = 30
     elif "year" in dur:
         days = 365
     if days > 0:
@@ -1302,7 +1306,7 @@ def create_user(body: UserCreate, db: Session = Depends(get_db), current_user: m
         raise HTTPException(400, "Username already exists")
     if current_user.role in ("SuperAdmin", "Admin"):
         if body.role not in ("Washer", "Admin"):
-            raise HTTPException(403, "Branch Admin can only create Washer or Admin accounts")
+            raise HTTPException(403, "Branch Admin can only create Worker or Admin accounts")
         owned_ids = get_owned_branch_ids(db, current_user)
         if body.branch_id not in owned_ids:
             body.branch_id = owned_ids[0] if owned_ids else None
@@ -1312,7 +1316,7 @@ def create_user(body: UserCreate, db: Session = Depends(get_db), current_user: m
         if plan and plan.max_washers is not None and plan.max_washers > 0:
             count = db.query(models.User).filter(models.User.branch_id == body.branch_id, models.User.role == "Washer").count()
             if count >= plan.max_washers:
-                raise HTTPException(400, "Washer limit reached for this branch. Please upgrade your plan to add more washers.")
+                raise HTTPException(400, "Worker limit reached for this branch. Please upgrade your plan to add more workers.")
     initials = "".join(w[0] for w in body.name.split() if w).upper()[:2]
     user = models.User(
         username=body.username, password_hash=auth_utils.hash_password(body.password),
@@ -1482,7 +1486,7 @@ def delete_branch(bid: str, db: Session = Depends(get_db), _=Depends(require_adm
     b = db.query(models.Branch).filter(models.Branch.id == bid).first()
     if not b: raise HTTPException(404, "Branch not found")
     
-    # Delete associated users (like Branch Admins and Washers)
+    # Delete associated users (like Branch Admins and Workers)
     associated_users = db.query(models.User).filter(models.User.branch_id == bid).all()
     for u in associated_users:
         db.delete(u)
@@ -3150,16 +3154,16 @@ def assign_job_request(req_id: str, body: dict, background_tasks: BackgroundTask
     # Enforce Limits
     check_branch_limits(db, r.branch_id)
 
-    # Look up the washer
+    # Look up the worker
     washer_id = body.get("washer_id")
     if not washer_id:
         raise HTTPException(400, "washer_id is required")
     washer = db.query(models.User).filter(models.User.id == int(washer_id)).first()
     if not washer:
-        raise HTTPException(404, "Washer not found")
+        raise HTTPException(404, "Worker not found")
         
     if washer.role == "Washer" and is_washer_locked(db, washer):
-        raise HTTPException(400, "Cannot assign job to a locked washer. Their access is restricted due to subscription limits.")
+        raise HTTPException(400, "Cannot assign job to a locked worker. Their access is restricted due to subscription limits.")
 
     # Look up the package if provided
     package_id = body.get("package_id") or r.package_id
@@ -3173,7 +3177,7 @@ def assign_job_request(req_id: str, body: dict, background_tasks: BackgroundTask
     branch = db.query(models.Branch).filter(models.Branch.id == r.branch_id).first()
     branch_name = branch.name if branch else None
 
-    # Create a PendingJob so the washer can see and act on it
+    # Create a PendingJob so the worker can see and act on it
     import random, string
     job_id = "JOB-" + "".join(random.choices(string.digits, k=8))
 
@@ -3221,7 +3225,7 @@ def assign_job_request(req_id: str, body: dict, background_tasks: BackgroundTask
 @app.get("/api/washer/available-job-requests")
 def get_available_job_requests(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     if current_user.role != "Washer":
-        raise HTTPException(403, "Only washers can view available job requests")
+        raise HTTPException(403, "Only workers can view available job requests")
     
     branch_id = current_user.branch_id or current_user.branchId
     if not branch_id: return []
@@ -3248,7 +3252,7 @@ def get_available_job_requests(db: Session = Depends(get_db), current_user: mode
 @app.post("/api/washer/job-requests/{req_id}/take")
 def take_job_request(req_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     if current_user.role != "Washer":
-        raise HTTPException(403, "Only washers can take job requests")
+        raise HTTPException(403, "Only workers can take job requests")
         
     if is_washer_locked(db, current_user):
         raise HTTPException(400, "Your account is locked due to branch subscription limits.")
@@ -3595,7 +3599,7 @@ async def create_razorpay_qr(
     db: Session = Depends(get_db)
 ):
     # Supreme settings for subscription payments (registration + upgrade)
-    # Branch settings for invoice payments (washer/customer checkout)
+    # Branch settings for invoice payments (worker/customer checkout)
     if payment_type == "subscription":
         keys = get_supreme_keys(db)
         user_role = None

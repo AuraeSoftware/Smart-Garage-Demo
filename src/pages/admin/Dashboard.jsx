@@ -543,7 +543,7 @@ export const Dashboard = ({ sessions, users, packages, customers, loyalty, updat
                 {row('Branches', f.address)}
                 {row('Washes done', `${f.washes} sessions`)}
                 {row('Total revenue', `${fc} ${f.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)}
-                {plan && row('Plan limits', `${plan.max_washers ?? '∞'} washers · ${plan.max_sessions ?? '∞'} sessions/mo · ${plan.max_branches ?? '∞'} branches`)}
+                {plan && row('Plan limits', `${plan.max_washers ?? '∞'} workers · ${plan.max_sessions ?? '∞'} sessions/mo · ${plan.max_branches ?? '∞'} branches`)}
                 {owned.length > 0 && (
                   <div style={{ marginTop: 14 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-3)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Branches</div>

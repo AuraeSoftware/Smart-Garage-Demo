@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getCurrency } from '../../utils/messaging';
-import { Card, Chip, Btn, Inp, StatCard, EmptyState, Dropdown} from '../../components/common/UI';
+import { Card, Chip, Btn, Inp, StatCard, EmptyState, Dropdown } from '../../components/common/UI';
 import { generateInvoicePDF } from '../../utils/pdf';
 import { openWhatsApp } from '../../utils/messaging';
 import ReceiptIcon from '../../assets/icons/receipt-icon.png';
@@ -32,7 +32,7 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
   const [selected, setSelected] = useState(null);
   const [pdfLoading, setPdfLoading] = useState(false);
 
-  const washers = users.filter(u => u.role === 'Washer');
+  const workers = users.filter(u => u.role === 'Washer');
 
   const parseDate = (dStr) => {
     if (!dStr) return null;
@@ -122,7 +122,7 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
           name="searchInvoice"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search invoice, vehicle, plate, washer…"
+          placeholder="Search invoice, vehicle, plate, worker…"
           icon={<img src={SearchIcon} alt="" style={{ width: 14, height: 14 }} />}
           style={{ margin: 0, flex: '1 1 240px', minWidth: 200 }}
         />
@@ -141,9 +141,9 @@ export const Sessions = ({ currentUser,sessions, users, branches, onNav}) => {
             { value: 'Dynamic QR', label: 'Dynamic QR' },
             { value: 'Online Transfer', label: 'Online Transfer' },
           ]},
-          { id: 'washer', label: 'washFilt', val: washFilt, set: setWashFilt, opts: [
+          { id: 'worker', label: 'washFilt', val: washFilt, set: setWashFilt, opts: [
             { value: 'All', label: 'All Workers' },
-            ...Array.from(new Set(washers.map(w => w.name).filter(Boolean))).map(n => ({ value: n, label: n }))
+            ...Array.from(new Set(workers.map(w => w.name).filter(Boolean))).map(n => ({ value: n, label: n }))
           ]},
           { id: 'branch', label: 'brFilt', val: brFilt, set: setBrFilt, opts: [
             { value: 'All', label: 'All Branches' },

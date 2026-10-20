@@ -27,4 +27,4 @@ export const DEFAULT_LOYALTY = {
 };
 
 export const PAY_METHODS = ['Cash', 'Online Transfer', 'QR Payment'];
-export const ROLES       = ['Washer', 'Junior Washer', 'Senior Washer', 'Supervisor', 'SuperAdmin', 'SupremeAdmin'];
+export const ROLES       = ['Worker', 'Junior Worker', 'Senior Worker', 'Supervisor', 'SuperAdmin', 'SupremeAdmin'];

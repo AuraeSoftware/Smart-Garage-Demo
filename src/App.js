@@ -28,7 +28,7 @@ import { JobRequestForm } from './pages/public/JobRequestForm';
 import { JobTracking } from './pages/public/JobTracking';
 import { API, token } from './utils/api';
 import {
-  Washers, Credentials, Packages, PaymentSettingsPage, Reports, LiveMap, LoyaltySettings, SubscriptionPlans, CurrencyConfigPage
+  Workers, Credentials, Packages, PaymentSettingsPage, Reports, LiveMap, LoyaltySettings, SubscriptionPlans, CurrencyConfigPage
 } from './pages/admin/AdminPages';
 import { NotificationsPage } from './pages/admin/NotificationsPage';
 
@@ -265,7 +265,7 @@ export default function App() {
       case 'sessions': return <Sessions sessions={data.sessions} users={data.users} branches={data.branches} onNav={setAdminNav} currentUser={currentUser} />;
       case 'customers': return <Customers customers={data.customers} sessions={data.sessions} branches={data.branches} updateCustomers={data.updateCustomers} updateCustomer={data.updateCustomer} notify={notify} onNav={setAdminNav} users={data.users} currentUser={currentUser} />;
       case 'my_plan': return <MyPlanPage currentUser={currentUser} branchSubscription={branchSubscription} data={data} />;
-      case 'washers': return <Washers users={data.users} sessions={data.sessions} branches={data.branches} createUser={data.createUser} updateUser={data.updateUser} deleteUser={data.deleteUser} notify={notify} userRole={currentUser.role} currentUser={currentUser} branchSubscription={branchSubscription} onNav={setAdminNav} />;
+      case 'workers': return <Workers users={data.users} sessions={data.sessions} branches={data.branches} createUser={data.createUser} updateUser={data.updateUser} deleteUser={data.deleteUser} notify={notify} userRole={currentUser.role} currentUser={currentUser} branchSubscription={branchSubscription} onNav={setAdminNav} />;
       case 'credentials': return <Credentials users={data.users} sessions={data.sessions} updateUser={data.updateUser} deleteUser={data.deleteUser} notify={notify} userRole={currentUser.role} currentUser={currentUser} onNav={setAdminNav} />;
       case 'packages': return <Packages packages={data.packages} branches={data.branches} sessions={data.sessions} inventory={data.inventory} createPackage={data.createPackage} updatePackage={data.updatePackage} deletePackage={data.deletePackage} notify={notify} onNav={setAdminNav} branchSubscription={branchSubscription} currentUser={currentUser} />;
       case 'subscriptions': return <SubscriptionPlans plans={data.subscriptionPlans} createPlan={data.createSubscriptionPlan} updatePlan={data.updateSubscriptionPlan} deletePlan={data.deleteSubscriptionPlan} notify={notify} onNav={setAdminNav} />;

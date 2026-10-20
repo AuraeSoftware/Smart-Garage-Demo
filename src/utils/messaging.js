@@ -22,7 +22,7 @@ export const buildWhatsAppMessage = (invoice) => {
     `Invoice No : *${invoice.id}*`,
     `Date       : ${invoice.date}`,
     `Branch     : ${invoice.branch || 'Main Branch'}`,
-    `Washer     : ${invoice.washer}`,
+    `Worker     : ${invoice.washer}`,
     `Location   : ${locationLine}`,
     ``,
     `${d}`,

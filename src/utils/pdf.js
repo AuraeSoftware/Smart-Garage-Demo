@@ -100,7 +100,7 @@ export const generateInvoicePDF = async (invoice) => {
 
   const metaRows = [
     ['Date',     invoice.date],
-    ['Washer',   invoice.washer],
+    ['Worker',   invoice.washer],
   ];
   const gstData = invoice.payment?.gst || invoice.gst;
   if (gstData?.enabled && gstData?.number) {

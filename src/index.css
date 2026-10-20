@@ -509,7 +509,7 @@ a[role="button"]:has(svg:only-child) {
     padding: 14px !important;
   }
 
-  /* Washer App — Step wizard compact */
+  /* Worker App — Step wizard compact */
   .washer-steps {
     gap: 2px !important;
     font-size: 10px !important;
@@ -519,7 +519,7 @@ a[role="button"]:has(svg:only-child) {
     display: none !important;
   }
 
-  /* Washer App — Dashboard cards */
+  /* Worker App — Dashboard cards */
   .washer-dash-grid {
     grid-template-columns: 1fr !important;
     gap: 10px !important;

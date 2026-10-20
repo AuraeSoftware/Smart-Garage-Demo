@@ -4,7 +4,7 @@ Seed default data. Uses upsert-by-username — safe on every deploy.
 Role system:
   SupremeAdmin = full platform access (app owner — OS2 Studio)
   SuperAdmin   = branch admin (branch-scoped)
-  Washer       = washer app only
+  Washer       = Worker app only
 
 PRODUCTION NOTE:
   - All demo/test users, branches, and packages have been removed.
@@ -43,7 +43,7 @@ DEFAULT_PACKAGES = []
 
 # ── Subscription Plans ───────────────────────────────────────
 DEFAULT_PLANS = [
-    dict(id="trial", label="Smart Garage Free Trial", price="RM 0", monthly_price=0, annual_price=0, duration="14 days", color="#6366f1", features=[], max_branches=1, max_washers=0, max_sessions=0, has_loyalty=True, has_reports=True, has_ai_scanning=True, has_multiple_branches=True, has_payment_gateway=True),
+    dict(id="trial", label="Smart Garage Free Trial", price="RM 0", monthly_price=0, annual_price=0, duration="2 months", color="#6366f1", features=[], max_branches=1, max_washers=0, max_sessions=0, has_loyalty=True, has_reports=True, has_ai_scanning=True, has_multiple_branches=True, has_payment_gateway=True),
     dict(id="start", label="Smart Garage Start", price="RM 149", monthly_price=149, annual_price=1490, duration="/month", color="#059669", features=[], max_branches=1, max_washers=5, max_sessions=100, has_loyalty=True, has_reports=True, has_ai_scanning=True, has_multiple_branches=False, has_payment_gateway=True),
     dict(id="grow", label="Smart Garage Grow", price="RM 349", monthly_price=349, annual_price=3490, duration="/month", color="#3b82f6", features=[], max_branches=3, max_washers=15, max_sessions=200, has_loyalty=True, has_reports=True, has_ai_scanning=True, has_multiple_branches=True, has_payment_gateway=True),
     dict(id="pro", label="Smart Garage Pro", price="RM 699", monthly_price=699, annual_price=6990, duration="/month", color="#8b5cf6", features=[], max_branches=10, max_washers=40, max_sessions=300, has_loyalty=True, has_reports=True, has_ai_scanning=True, has_multiple_branches=True, has_payment_gateway=True),

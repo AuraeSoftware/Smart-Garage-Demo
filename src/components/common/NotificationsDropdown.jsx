@@ -162,16 +162,16 @@ export default function NotificationsDropdown({ user, users, branches, pendingJo
     // Assigned jobs
     const assignedJobs = myBranchJobs.filter(j => j.status === 'assigned');
     assignedJobs.forEach(j => notifications.push({
-      id: `assign_${j.id}`, title: 'Job Assigned', message: `Job ${j.id} assigned to Washer Profile: ${j.washer || 'Unknown'}.`, type: 'info', action: () => onNav && onNav('dashboard'), timestamp: j.submittedAt || new Date().toISOString()
+      id: `assign_${j.id}`, title: 'Job Assigned', message: `Job ${j.id} assigned to Worker Profile: ${j.washer || 'Unknown'}.`, type: 'info', action: () => onNav && onNav('dashboard'), timestamp: j.submittedAt || new Date().toISOString()
     }));
 
-    // Washer accepted/started the wash
+    // Worker accepted/started the wash
     const inProgressJobs = myBranchJobs.filter(j => j.status === 'in_progress' || j.status === 'pending');
     inProgressJobs.forEach(j => notifications.push({
-      id: `prog_${j.id}`, title: 'Job Active', message: `Washer Profile: ${j.washer || 'Unknown'} is working on job ${j.id}.`, type: 'success', action: () => onNav && onNav('dashboard'), timestamp: j.submittedAt || new Date().toISOString()
+      id: `prog_${j.id}`, title: 'Job Active', message: `Worker Profile: ${j.washer || 'Unknown'} is working on job ${j.id}.`, type: 'success', action: () => onNav && onNav('dashboard'), timestamp: j.submittedAt || new Date().toISOString()
     }));
 
-    // Washer completed (limit to recent to avoid spam)
+    // Worker completed (limit to recent to avoid spam)
     const recentSessions = sessions?.filter(s => isMatchingBranch(s.branchId || s.branch_id) && s.status === 'Completed') || [];
     recentSessions.slice(0, 5).forEach(s => notifications.push({
       id: `sess_${s.id}`, title: 'Job Completed', message: `${s.washerUsername || s.washer} completed a wash for ${s.customer?.name || 'Customer'}.`, type: 'success', action: () => onNav && onNav('sessions'), timestamp: s.createdAt || new Date().toISOString()

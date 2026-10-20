@@ -8,8 +8,8 @@ import carIcon from '../assets/icons/car-icon.png';
 import branchIcon from '../assets/icons/branch-icon.png';
 import StepSection from './public/StepSection';
 const DEFAULT_PLANS = [
-    { id: 'trial', label: 'Free Trial', price: 'RM 0', desc: '14 days · 1 washer · 50 sessions', requiresPayment: false },
-    { id: 'starter', label: 'Starter', price: 'RM 99', desc: '/month · 3 washers · 500 sessions', requiresPayment: true },
+    { id: 'trial', label: 'Free Trial', price: 'RM 0', desc: '14 days · 1 worker · 50 sessions', requiresPayment: false },
+    { id: 'starter', label: 'Starter', price: 'RM 99', desc: '/month · 3 workers · 500 sessions', requiresPayment: true },
     { id: 'business', label: 'Business', price: 'RM 199', desc: '/month · Unlimited · AI + Priority support', requiresPayment: true },
 ];
 
@@ -29,7 +29,7 @@ export const LoginPage = ({ isDark, onToggleTheme }) => {
                 if (data && data.length > 0) {
                     setPlans(data.map(p => ({
                         ...p,
-                        desc: `${p.duration === '/month' ? '/month' : p.duration} · ${p.max_washers > 0 ? p.max_washers : 'Unlimited'} washers · ${p.max_sessions > 0 ? p.max_sessions : 'Unlimited'} sessions`,
+                        desc: `${p.duration === '/month' ? '/month' : p.duration} · ${p.max_washers > 0 ? p.max_washers : 'Unlimited'} workers · ${p.max_sessions > 0 ? p.max_sessions : 'Unlimited'} sessions`,
                         requiresPayment: !['rm 0', '0', 'free', 'trial', 'rm0'].includes((p.price || '').toLowerCase().replace(/\s/g, ''))
                     })));
                 }

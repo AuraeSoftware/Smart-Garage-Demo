@@ -31,20 +31,20 @@ import BoxIcon from '../../assets/icons/circle-icon.png';
 import SearchIcon from '../../assets/icons/search-icon.png';
 import calenderIcon from '../../assets/icons/calendar-icon.png';
 
-export const Washers = ({ users, sessions, branches, createUser, updateUser, deleteUser, notify, userRole, currentUser, branchSubscription, onNav }) => {
+export const Workers = ({ users, sessions, branches, createUser, updateUser, deleteUser, notify, userRole, currentUser, branchSubscription, onNav }) => {
   const curr = getCurrency(currentUser?.phone);
 
   const isSupremeAdmin = userRole === 'SupremeAdmin';
   const isSuperAdmin = userRole === 'SuperAdmin';
   const isBranchAdmin = userRole === 'Admin';
 
-  // SuperAdmin and BranchAdmin sees only their own washers
+  // SuperAdmin and BranchAdmin sees only their own workers
   const branchId = currentUser?.branch_id || currentUser?.branchId;
   const visibleWashers = users.filter(u => {
     if (isSupremeAdmin) return u.role !== 'SupremeAdmin';
     if (u.role !== 'Washer') return false;
 
-    // For SuperAdmin, show washers from ANY of their owned branches
+    // For SuperAdmin, show workers from ANY of their owned branches
     // (the backend already filters 'users' to only owned branches for SuperAdmin)
     if (isSuperAdmin) return true;
 
@@ -60,18 +60,18 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
   if (branchSubscription?.max_washers !== undefined && branchSubscription?.max_washers !== null && branchSubscription.max_washers > 0) {
     if (washerCount >= branchSubscription.max_washers) {
       canAddWasher = false;
-      addWasherMsg = `Your plan is limited to ${branchSubscription.max_washers} washers. Upgrade to add more.`;
+      addWasherMsg = `Your plan is limited to ${branchSubscription.max_washers} workers. Upgrade to add more.`;
     }
   }
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
   const [newW, setNewW] = useState({ username: '', password: '', name: '', phone: '', role: 'Washer', branchId: '' });
   const ROLE_OPTIONS = isSupremeAdmin
-    ? [{ value: 'Washer', label: 'Washer' }, { value: 'SuperAdmin', label: 'Super Admin' }, { value: 'Admin', label: 'Branch Admin' }]
-    : [{ value: 'Washer', label: 'Washer' }];
+    ? [{ value: 'Washer', label: 'Worker' }, { value: 'SuperAdmin', label: 'Super Admin' }, { value: 'Admin', label: 'Branch Admin' }]
+    : [{ value: 'Washer', label: 'Worker' }];
   const set = (k, v) => setNewW(f => ({ ...f, [k]: v }));
 
-  const washers = visibleWashers;
+  const workers = visibleWashers;
   const branchAdmins = users.filter(u => u.role === 'SuperAdmin' || u.role === 'Admin');
   const washerStats = {};
   sessions.forEach(s => {
@@ -89,7 +89,7 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
       setNewW({ username: '', password: '', name: '', phone: '', role: 'Washer', branchId: '' });
       setShowAdd(false);
       notify(`${newW.name} added!`);
-    } catch (err) { notify(err.message || 'Failed to add washer', 'error'); }
+    } catch (err) { notify(err.message || 'Failed to add worker', 'error'); }
   };
 
   const handleUpdate = async () => {
@@ -98,7 +98,7 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
       if (editing._newPwd) payload.password = editing._newPwd;
       await updateUser(editing.id, payload);
       setEditing(null);
-      notify('Washer updated!');
+      notify('Worker updated!');
     } catch (err) { notify(err.message || 'Failed to update', 'error'); }
   };
 
@@ -122,9 +122,9 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
   return (
     <>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12, marginBottom: 20 }}>
-        <StatCard icon={<img src={WorkerIcon} alt="Worker" style={{ width: 24, height: 24 }} />} label="Total Staff" value={washers.length} color="var(--accent)" />
-        <StatCard icon={<img src={ActiveIcon} alt="Active" style={{ width: 24, height: 24 }} />} label="Active" value={washers.filter(w => w.status === 'Active').length} sub="operational" color="var(--green)" />
-        <StatCard icon={<img src={SuspendIcon} alt="Suspended" style={{ width: 24, height: 24 }} />} label="Suspended" value={washers.filter(w => w.status === 'Suspended').length} sub="" color="var(--red)" />
+        <StatCard icon={<img src={WorkerIcon} alt="Worker" style={{ width: 24, height: 24 }} />} label="Total Staff" value={workers.length} color="var(--accent)" />
+        <StatCard icon={<img src={ActiveIcon} alt="Active" style={{ width: 24, height: 24 }} />} label="Active" value={workers.filter(w => w.status === 'Active').length} sub="operational" color="var(--green)" />
+        <StatCard icon={<img src={SuspendIcon} alt="Suspended" style={{ width: 24, height: 24 }} />} label="Suspended" value={workers.filter(w => w.status === 'Suspended').length} sub="" color="var(--red)" />
         <StatCard icon={<img src={JobIcon} alt="Total Jobs" style={{ width: 24, height: 24 }} />} label="Total Jobs" value={sessions.length} sub="across all staff" color="var(--accent-2)" />
         <StatCard icon={<img src={BranchIcon} alt="Branch" style={{ width: 24, height: 24 }} />} label="Branch Admins" value={branchAdmins.length} sub="branch managers" color="var(--amber)" />
       </div>
@@ -138,11 +138,11 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
         <Btn onClick={() => {
           setNewW(prev => ({ ...prev, role: 'Washer', branchId: branches.length === 1 ? branches[0].id : '' }));
           setShowAdd(true);
-        }} disabled={!canAddWasher}>+ Add Washer</Btn>
+        }} disabled={!canAddWasher}>+ Add Worker</Btn>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 14 }}>
-        {washers.map(w => {
+        {workers.map(w => {
           const ws = washerStats[w.name] || { sessions: 0, revenue: 0 };
           const br = branches.find(b => String(b.id) === String(w.branchId || w.branch_id));
           return (
@@ -215,7 +215,7 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
       </div>
 
       {/* Add */}
-      <Modal title="➕ Add Washer" open={showAdd} onClose={() => setShowAdd(false)}>
+      <Modal title="➕ Add Worker" open={showAdd} onClose={() => setShowAdd(false)}>
         <Inp label="Full Name *" value={newW.name} onChange={e => set('name', e.target.value)} placeholder="Full name" />
         <Inp label="Username *" value={newW.username} onChange={e => set('username', e.target.value)} placeholder="Login username" />
         <Inp label="Password *" type="password" value={newW.password} onChange={e => set('password', e.target.value)} placeholder="Password" />
@@ -232,7 +232,7 @@ export const Washers = ({ users, sessions, branches, createUser, updateUser, del
           <Dropdown label="Branch" value={newW.branchId} onChange={v => set('branchId', v)} options={[{ value: '', label: '— Select Branch —' }, ...branches.map(b => ({ value: b.id, label: b.name }))]} />
         )}
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-          <Btn full onClick={handleAdd}>Save Washer</Btn>
+          <Btn full onClick={handleAdd}>Save Worker</Btn>
           <Btn full variant="ghost" onClick={() => setShowAdd(false)}>Cancel</Btn>
         </div>
       </Modal>
@@ -658,7 +658,7 @@ export const Packages = ({ packages, branches, sessions, inventory, createPackag
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--text-2)' }}>{packages.length} packages — changes reflect immediately in Washer App</p>
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--text-2)' }}>{packages.length} packages — changes reflect immediately in Worker App</p>
         <Btn onClick={handleAddOpen}>+ Add Package</Btn>
       </div>
 
@@ -1093,7 +1093,7 @@ export const Reports = ({ sessions, packages, branches, branchSubscription, user
           </>
         ) : (
           <>
-            {/* Washer performance */}
+            {/* Worker performance */}
             <Card>
               <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: 'var(--text)' }}>Revenue by Workers</h3>
               {Object.keys(washerMap).length === 0
@@ -1373,7 +1373,7 @@ export const LiveMap = ({ currentUser, sessions, pendingJobs, branches, onNav })
         <div className="table-responsive-wrapper">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr style={{ background: 'var(--bg-3)' }}>
-              {['Invoice', 'Washer', 'Vehicle', 'Location Name', 'Coordinates', 'Time'].map(h => (
+              {['Invoice', 'Worker', 'Vehicle', 'Location Name', 'Coordinates', 'Time'].map(h => (
                 <th key={h} style={{ textAlign: 'left', padding: '9px 13px', fontSize: 11, fontWeight: 700, color: 'var(--text-3)', borderBottom: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr></thead>
@@ -1555,7 +1555,7 @@ export const LoyaltySettings = ({ currentUser, customers, sessions, loyalty, upd
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>Reward Alert Message</div>
               <textarea id="alert-message" name="alertMessage" value={cfg.alertMessage} onChange={e => set('alertMessage', e.target.value)} rows={3}
                 style={{ width: '100%', boxSizing: 'border-box', background: 'var(--bg-3)', border: '1px solid var(--border-2)', borderRadius: 10, padding: '10px 14px', color: 'var(--text)', fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none' }} />
-              <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>Shown to washer in checkout when customer is eligible</div>
+              <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>Shown to worker in checkout when customer is eligible</div>
             </div>
           </div>
 
@@ -1567,7 +1567,7 @@ export const LoyaltySettings = ({ currentUser, customers, sessions, loyalty, upd
           <div style={{ marginTop: 16, background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(0,212,188,0.08))', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 14, padding: '14px' }}>
             <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--green)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <img src={SearchIcon} alt="" style={{ width: 14, height: 14 }} />
-              Washer App Preview
+              Worker App Preview
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-2)', marginBottom: 8 }}>{cfg.alertMessage}</div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -1929,7 +1929,7 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <div style={{ flex: 1 }}>
-            <Inp label="Max Washers (0=Unlimited)" type="number" value={state.max_washers} onChange={e => setState({ ...state, max_washers: e.target.value })} />
+            <Inp label="Max Workers (0=Unlimited)" type="number" value={state.max_washers} onChange={e => setState({ ...state, max_washers: e.target.value })} />
           </div>
           <div style={{ flex: 1 }}>
             <Inp label="Max Sessions (0=Unlimited)" type="number" value={state.max_sessions} onChange={e => setState({ ...state, max_sessions: e.target.value })} />
@@ -2044,7 +2044,7 @@ export const SubscriptionPlans = ({ currentUser, plans, createPlan, updatePlan, 
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', marginBottom: 8 }}>Included Features</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <div style={{ fontSize: 13, color: 'var(--text-2)', display: 'flex', gap: 8 }}>
-                      <span style={{ color: p.color, fontWeight: 800 }}>✓</span> {p.max_washers ? `${p.max_washers} Washers` : 'Unlimited Washers'}
+                      <span style={{ color: p.color, fontWeight: 800 }}>✓</span> {p.max_washers ? `${p.max_washers} Workers` : 'Unlimited Workers'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--text-2)', display: 'flex', gap: 8 }}>
                       <span style={{ color: p.color, fontWeight: 800 }}>✓</span> {p.max_sessions ? `${p.max_sessions} Sessions/mo` : 'Unlimited Sessions'}

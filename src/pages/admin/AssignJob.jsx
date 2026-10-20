@@ -23,20 +23,20 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
     }
   }, [branches, currentUser, selectedBranch]);
 
-  // Filter Washers based on selected branch
+  // Filter Workers based on selected branch
   const allWashers = useMemo(() => {
     return users.filter(u => {
       if (u.role !== 'Washer' || u.status !== 'Active') return false;
       return String(u.branch_id || u.branchId) === String(selectedBranch);
     }).map(w => {
-      // Calculate pending jobs count for this washer
+      // Calculate pending jobs count for this worker
       const count = pendingJobs.filter(j => (j.washerId || j.washer_id) === w.id && j.status !== 'Completed').length;
       return { ...w, pendingCount: count };
     });
   }, [users, selectedBranch, pendingJobs]);
 
-  // Only show washers with NO pending jobs (available washers)
-  const washers = useMemo(() => allWashers.filter(w => w.pendingCount === 0), [allWashers]);
+  // Only show workers with NO pending jobs (available workers)
+  const workers = useMemo(() => allWashers.filter(w => w.pendingCount === 0), [allWashers]);
   const busyWashers = useMemo(() => allWashers.filter(w => w.pendingCount > 0), [allWashers]);
 
   // Session Limit Logic
@@ -64,8 +64,8 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
       return;
     }
 
-    const washer = washers.find(w => w.id === parseInt(selectedWasher));
-    if (!washer) return;
+    const worker = workers.find(w => w.id === parseInt(selectedWasher));
+    if (!worker) return;
 
     const branchId = selectedBranch;
     const branch = branches.find(b => b.id === branchId);
@@ -81,14 +81,14 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
       geo: null,
       branchId,
       branch: branch?.name,
-      washerId: washer.id,
-      washer: washer.name,
+      washerId: worker.id,
+      washer: worker.name,
       status: 'assigned',
     };
 
     addPendingJob(job)
       .then(() => {
-        notify(`Job assigned to ${washer.name} successfully!`, 'success');
+        notify(`Job assigned to ${worker.name} successfully!`, 'success');
         setCustomerName('');
         setCustomerPhone('');
         setVehicleMake('');
@@ -198,17 +198,17 @@ export const AssignJob = ({ users, packages, pendingJobs, branches, currentUser,
 
         <div style={{ marginBottom: 28 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-2)', marginBottom: 8 }}>Assign To Worker</div>
-          {washers.length === 0 && busyWashers.length === 0 ? (
+          {workers.length === 0 && busyWashers.length === 0 ? (
             <div style={{ padding: 12, background: 'rgba(239,68,68,0.1)', color: 'var(--red)', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
               No workers available in your branch!
             </div>
-          ) : washers.length === 0 ? (
+          ) : workers.length === 0 ? (
             <div style={{ padding: 12, background: 'rgba(239,68,68,0.1)', color: 'var(--red)', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
               All workers are currently busy with pending jobs.
             </div>
           ) : (
             <div className="responsive-split-1-1" style={{ gap: 10 }}>
-              {washers.map(w => (
+              {workers.map(w => (
                 <div key={w.id}
                   onClick={() => setSelectedWasher(w.id.toString())}
                   style={{
