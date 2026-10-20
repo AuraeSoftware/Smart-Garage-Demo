@@ -151,7 +151,7 @@ export const Workers = ({ users, sessions, branches, createUser, updateUser, del
                 <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'linear-gradient(135deg,var(--accent),var(--accent-2))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 15, color: '#fff', flexShrink: 0 }}>{w.avatar}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>{w.name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 1 }}>{w.role} · @{w.username}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 1 }}>{w.role === 'Washer' ? 'Worker' : w.role} · @{w.username}</div>
                   {br && <div style={{ fontSize: 11, color: 'var(--accent)', marginTop: 1 }}><img src={BranchIcon} alt="Branch" style={{ width: 16, height: 16 }} />{br.name.split('–')[0].trim()}</div>}
                 </div>
                 <Chip color={w.is_locked ? 'var(--red)' : (w.status === 'Active' ? 'var(--green)' : 'var(--red)')}>{w.is_locked ? 'Locked' : w.status}</Chip>
@@ -333,7 +333,7 @@ export const Credentials = ({ users, sessions = [], updateUser, deleteUser, noti
                   onMouseLeave={e => e.currentTarget.style.background = ''}>
                   <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{u.name}</td>
                   <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)', fontFamily: 'monospace', fontSize: 12, color: 'var(--accent)' }}>{u.username}</td>
-                  <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)' }}><Chip color={u.role === 'Admin' ? 'var(--amber)' : u.role === 'IndividualUser' ? 'var(--blue)' : 'var(--accent)'}>{u.role === 'IndividualUser' ? 'Customer' : u.role}</Chip></td>
+                  <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)' }}><Chip color={u.role === 'Admin' ? 'var(--amber)' : u.role === 'IndividualUser' ? 'var(--blue)' : 'var(--accent)'}>{u.role === 'IndividualUser' ? 'Customer' : u.role === 'Washer' ? 'Worker' : u.role}</Chip></td>
                   <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--text-2)' }}>{u.branchId || '—'}</td>
                   <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--text-2)' }}>{u.phone || '—'}</td>
                   <td style={{ padding: '11px 14px', borderBottom: '1px solid var(--border)' }}><Chip color={u.status === 'Active' ? 'var(--green)' : 'var(--red)'}>{u.status}</Chip></td>
